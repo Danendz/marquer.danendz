@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\UserResource;
+use App\Http\Resources\ApiResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
-    public function me(Request $request)
+    public function me(Request $request): JsonResponse
     {
-        $userId  = $request->attributes->get('user_id');
-        $payload = $request->attributes->get('jwt_payload');
-        return response()->json([
-            'user_id'   => $userId,
-            'payload' => $payload
+        $userId = $this->get_user_id($request);
+        return ApiResponse::success([
+            'user_id' => $userId
         ]);
-
     }
 }
