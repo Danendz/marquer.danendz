@@ -22,7 +22,6 @@ class UpdateNoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', 'integer'],
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['required', 'string']
         ];
