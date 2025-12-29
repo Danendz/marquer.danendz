@@ -3,11 +3,13 @@ namespace App\Http\Controllers;
 
 use App\Models\AppRelease;
 use Aws\S3\S3Client;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class AppReleaseController extends Controller
 {
-    public function latest(Request $request)
+    public function latest(Request $request): JsonResponse
     {
         $platform = $request->query('platform', 'android');
         $channel = $request->query('channel', 'stable');
@@ -30,7 +32,7 @@ class AppReleaseController extends Controller
         ]);
     }
 
-    public function downloadLatest(Request $request)
+    public function downloadLatest(Request $request): RedirectResponse
     {
         $platform = $request->query('platform', 'android');
         $channel  = $request->query('channel', 'stable');
@@ -57,6 +59,7 @@ class AppReleaseController extends Controller
             'Bucket' => config('s3.bucket'),
             'Key' => $release->object_key_latest,
             'ResponseContentType' => 'application/vnd.android.package-archive',
+            'ResponseContentDisposition' => 'attachment; filename="app-latest.apk"',
         ]);
 
         $presignedRequest = $s3->createPresignedRequest($cmd, '+15 minutes');
