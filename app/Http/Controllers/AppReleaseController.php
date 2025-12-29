@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ApiResponse;
 use App\Models\AppRelease;
 use Aws\S3\S3Client;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +22,7 @@ class AppReleaseController extends Controller
             ->orderByDesc('released_at')
             ->firstOrFail();
 
-        return response()->json([
+        return ApiResponse::success([
             'platform' => $release->platform,
             'channel' => $release->channel,
             'version' => $release->version,
