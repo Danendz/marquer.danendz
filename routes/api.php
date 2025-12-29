@@ -19,7 +19,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::prefix('marquer')->group(function () {
-    Route::post('/internal/app-releases', [AppReleaseIngestController::class, 'store']);
+    Route::post('/internal/app-releases', [AppReleaseIngestController::class, 'store'])->middleware('github.oidc');
     Route::prefix('app')->group(function () {
         Route::get('/latest', [AppReleaseController::class, 'latest']);
         Route::get('/latest/download', [AppReleaseController::class, 'downloadLatest']);
