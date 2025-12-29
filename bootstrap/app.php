@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureGitHubOidc;
 use App\Http\Middleware\ForceJsonResponseMiddleware;
 use App\Http\Middleware\JwtAuthMiddleware;
 use Illuminate\Foundation\Application;
@@ -15,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'auth' => JwtAuthMiddleware::class,
+            'github.oidc' => EnsureGitHubOidc::class
         ]);
 
         $middleware->api(prepend: [
