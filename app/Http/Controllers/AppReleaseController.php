@@ -27,7 +27,7 @@ class AppReleaseController extends Controller
             'version' => $release->version,
             'build_number' => $release->build_number,
             'version_full' => $release->version_full,
-            'download_url' => url("/api/app/latest/download?platform={$platform}&channel={$channel}"),
+            'download_url' => url("/api/marquer/app/latest/download?platform={$platform}&channel={$channel}"),
             'released_at' => optional($release->released_at)->toISOString(),
         ]);
     }
@@ -59,7 +59,6 @@ class AppReleaseController extends Controller
             'Bucket' => config('s3.bucket'),
             'Key' => $release->object_key_latest,
             'ResponseContentType' => 'application/vnd.android.package-archive',
-            'ResponseContentDisposition' => 'attachment; filename="app-latest.apk"',
         ]);
 
         $presignedRequest = $s3->createPresignedRequest($cmd, '+15 minutes');
