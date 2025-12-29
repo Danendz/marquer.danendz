@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 return [
     'endpoint' => env('S3_ENDPOINT'),

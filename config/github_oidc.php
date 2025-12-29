@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 return [
     'audience' => env('GITHUB_OIDC_AUDIENCE'),
