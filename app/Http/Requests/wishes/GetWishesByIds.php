@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\wishes;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreNoteRequest extends FormRequest
+class GetWishesByIds extends FormRequest
 {
     public function authorize(): bool
     {
@@ -19,8 +19,8 @@ class StoreNoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['nullable', 'string', 'max:255'],
-            'content' => ['required', 'string']
+            'ids' => ['sometimes', 'array'],
+            'ids.*' => ['integer'],
         ];
     }
 }

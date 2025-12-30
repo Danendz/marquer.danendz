@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\notes;
 
 use App\Models\Note;
 use Illuminate\Http\Request;

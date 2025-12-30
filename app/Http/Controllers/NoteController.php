@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreNoteRequest;
-use App\Http\Requests\UpdateNoteRequest;
+use App\Http\Requests\notes\StoreNoteRequest;
+use App\Http\Requests\notes\UpdateNoteRequest;
 use App\Http\Resources\ApiResponse;
-use App\Http\Resources\NoteListResource;
-use App\Http\Resources\NoteResource;
-use App\Models\Note;
+use App\Http\Resources\notes\NoteListResource;
+use App\Http\Resources\notes\NoteResource;
 use App\Services\NoteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppReleaseController;
 use App\Http\Controllers\Internal\AppReleaseIngestController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\WishController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
@@ -23,5 +24,11 @@ Route::prefix('marquer')->group(function () {
     Route::prefix('app')->group(function () {
         Route::get('/latest', [AppReleaseController::class, 'latest']);
         Route::get('/latest/download', [AppReleaseController::class, 'downloadLatest']);
+    });
+
+    Route::prefix('wish')->group(function () {
+        Route::post('/', [WishController::class, 'store']);
+        Route::get('/my', [WishController::class, 'index']);
+        Route::get('/random', [WishController::class, 'random']);
     });
 });
