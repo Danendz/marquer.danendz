@@ -16,7 +16,7 @@ class ApiResponse
         ], $status);
     }
 
-    public static function error(mixed $data = null, string $message = 'Internal error', int $status = 400): JsonResponse
+    public static function error(mixed $data = null, string $message = 'Error', int $status = 500): JsonResponse
     {
         return response()->json([
             'status' => $status,
