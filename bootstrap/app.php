@@ -127,13 +127,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // Fallback 500
             return ApiResponse::error(
-                data: $isDev ? [
-                    'exception' => get_class($e),
-                    'message' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTrace(),
-                ] : null,
+                data: $isDev ? get_error_data($e) : null,
                 message: $isDev ? $e->getMessage() : 'Server error.',
                 status: 500,
             );
