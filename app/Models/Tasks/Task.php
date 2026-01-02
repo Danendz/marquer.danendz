@@ -3,7 +3,6 @@
 namespace App\Models\Tasks;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Task extends Model
 {
@@ -17,4 +16,13 @@ class Task extends Model
     protected $attributes = [
         'status' => 'draft'
     ];
+
+    public function resolveRouteBinding($value, $field = null): Model|Task|null
+    {
+        $user = request()->user();
+        return $this->where([
+            ['user_id', $user->id],
+            ['id', $value],
+        ])->firstOrFail();
+    }
 }

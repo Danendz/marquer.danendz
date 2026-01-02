@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class WishService
 {
-    public function get_random_wish(array $excludeIds): Wish
+    public function getRandomWish(array $excludeIds): Wish
     {
         return Wish::query()
             ->whereNotIn('id', $excludeIds)
@@ -16,7 +16,7 @@ class WishService
             ->firstOrFail();
     }
 
-    public function get_wishes_by_ids(array $ids): Collection
+    public function getWishesByIds(array $ids): Collection
     {
         return Wish::query()
             ->whereIn('id', $ids)->get();

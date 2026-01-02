@@ -8,6 +8,7 @@ use App\Http\Requests\Notes\UpdateNoteRequest;
 use App\Http\Resources\ApiResponse;
 use App\Http\Resources\Notes\NoteListResource;
 use App\Http\Resources\Notes\NoteResource;
+use App\Models\Note;
 use App\Services\NoteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,9 +24,7 @@ class NoteController extends Controller
     public function index(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
-
         $notes = $this->noteService->list($userId);
-
         return ApiResponse::success(NoteListResource::collection($notes));
     }
 
@@ -33,32 +32,23 @@ class NoteController extends Controller
     {
         $userId = $request->user()->id;
         $note = $this->noteService->create($userId, $request->validated());
-
         return ApiResponse::success(new NoteResource($note));
     }
 
-    public function show($id, Request $request): JsonResponse
+    public function show(Note $note): JsonResponse
     {
-        $userId = $request->user()->id;
-        $note = $this->noteService->get_by_id((int)$id, $userId);
-
         return ApiResponse::success(new NoteResource($note));
     }
 
 
-    public function update($id, UpdateNoteRequest $request): JsonResponse
+    public function update(Note $note, UpdateNoteRequest $request): JsonResponse
     {
-        $userId = $request->user()->id;
-        $note = $this->noteService->update((int)$id, $userId, $request->validated());
-
-        return ApiResponse::success(new NoteResource($note));
+        return ApiResponse::success($this->noteService->update($note, $request->validated()));
     }
 
-    public function destroy($id, Request $request): JsonResponse
+    public function destroy(Note $note): JsonResponse
     {
-        $userId = $request->user()->id;
-        $this->noteService->delete((int)$id, $userId);
-
+        $this->noteService->delete($note);
         return ApiResponse::success();
     }
 }

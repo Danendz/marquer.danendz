@@ -18,4 +18,13 @@ class TaskCategory extends Model
     {
         return $this->hasMany(Task::class, 'task_category_id');
     }
+
+    public function resolveRouteBinding($value, $field = null): Model|TaskCategory|null
+    {
+        $user = request()->user();
+        return $this->where([
+            ['user_id', $user->id],
+            ['id', $value],
+        ])->firstOrFail();
+    }
 }

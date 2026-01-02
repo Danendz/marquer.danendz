@@ -22,8 +22,8 @@ class WishController extends Controller
     public function index(GetWishesByIds $request): JsonResponse
     {
         $data = $request->validated();
-        $list_ids = $data['ids'] ?? [];
-        $wishes = $this->wishService->get_wishes_by_ids($list_ids);
+        $listIds = $data['ids'] ?? [];
+        $wishes = $this->wishService->getWishesByIds($listIds);
 
         return ApiResponse::success(WishResource::collection($wishes));
     }
@@ -38,8 +38,8 @@ class WishController extends Controller
     public function random(GetRandomWishRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $exclude_ids = $data['exclude_ids'] ?? [];
-        $wish = $this->wishService->get_random_wish($exclude_ids);
+        $excludeIds = $data['exclude_ids'] ?? [];
+        $wish = $this->wishService->getRandomWish($excludeIds);
 
         return ApiResponse::success(new WishResource($wish));
     }

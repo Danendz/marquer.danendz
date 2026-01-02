@@ -12,4 +12,13 @@ class Note extends Model
         'content',
         'title'
     ];
+
+    public function resolveRouteBinding($value, $field = null): Model|Note|null
+    {
+        $user = request()->user();
+        return $this->where([
+            ['user_id', $user->id],
+            ['id', $value],
+        ])->firstOrFail();
+    }
 }

@@ -3,46 +3,49 @@
 namespace App\Http\Controllers\Private\Tasks;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tasks\ListTasksRequest;
+use App\Http\Requests\Tasks\StoreTaskRequest;
+use App\Http\Requests\Tasks\UpdateTaskRequest;
+use App\Http\Resources\ApiResponse;
 use App\Http\Resources\Tasks\TaskResource;
 use App\Models\Tasks\Task;
+use App\Services\Tasks\TaskService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function index()
+
+    public function __construct(
+        protected TaskService $taskService
+    )
     {
-        return TaskResource::collection(Task::all());
     }
 
-    public function store(Request $request)
+    public function index(ListTasksRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'task_category_id' => ['required', 'exists:task_categories'],
-        ]);
-
-        return new TaskResource(Task::create($data));
+        $userId = $request->user()->id;
+        $tasks = $this->taskService->list($userId, $request->validated());
+        return ApiResponse::success(TaskResource::collection($tasks));
     }
 
-    public function show(Task $task)
+    public function store(StoreTaskRequest $request): JsonResponse
     {
-        return new TaskResource($task);
+        $userId = $request->user()->id;
+        $task = $this->taskService->create($userId, $request->validated());
+        return ApiResponse::success(new TaskResource($task));
     }
 
-    public function update(Request $request, Task $task)
+    public function update(Task $task, UpdateTaskRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'task_category_id' => ['required', 'exists:task_categories'],
-        ]);
-
-        $task->update($data);
-
-        return new TaskResource($task);
+        $task = $this->taskService->update($task, $request->validated());
+        return ApiResponse::success(new TaskResource($task));
     }
 
-    public function destroy(Task $task)
+    public function destroy(Task $task): JsonResponse
     {
-        $task->delete();
+        $this->taskService->delete($task);
 
-        return response()->json();
+        return ApiResponse::success();
     }
 }

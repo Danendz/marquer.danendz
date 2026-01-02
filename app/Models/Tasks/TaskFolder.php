@@ -16,4 +16,13 @@ class TaskFolder extends Model
     {
         return $this->hasMany(TaskCategory::class, 'task_folder_id');
     }
+
+    public function resolveRouteBinding($value, $field = null): Model|TaskFolder|null
+    {
+        $user = request()->user();
+        return $this->where([
+            ['user_id', $user->id],
+            ['id', $value],
+        ])->firstOrFail();
+    }
 }

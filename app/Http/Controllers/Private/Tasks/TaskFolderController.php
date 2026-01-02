@@ -7,6 +7,7 @@ use App\Http\Requests\Tasks\StoreTaskFolderRequest;
 use App\Http\Requests\Tasks\UpdateTaskFolderRequest;
 use App\Http\Resources\ApiResponse;
 use App\Http\Resources\Tasks\TaskFolderResource;
+use App\Models\Tasks\TaskFolder;
 use App\Services\Tasks\TaskFolderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,18 +35,15 @@ class TaskFolderController extends Controller
         return ApiResponse::success(new TaskFolderResource($folder));
     }
 
-    public function update(int $id, UpdateTaskFolderRequest $request): JsonResponse
+    public function update(TaskFolder $taskFolder, UpdateTaskFolderRequest $request): JsonResponse
     {
-        $userId = $request->user()->id;
-        $folder = $this->taskFolderService->update($id, $userId, $request->validated());
+        $folder = $this->taskFolderService->update($taskFolder, $request->validated());
         return ApiResponse::success(new TaskFolderResource($folder));
     }
 
-    public function destroy(int $id, Request $request): JsonResponse
+    public function destroy(TaskFolder $taskFolder): JsonResponse
     {
-        $userId = $request->user()->id;
-        $this->taskFolderService->delete($id, $userId);
-
+        $this->taskFolderService->delete($taskFolder);
         return ApiResponse::success();
     }
 }

@@ -26,15 +26,14 @@ class NoteService
         return Note::create($data);
     }
 
-    public function update(int $id, int $user_id, array $data): Note
+    public function update(Note $note, array $data): Note
     {
-        $note = $this->get_by_id($id, $user_id);
         $note->update($data);
 
         return $note;
     }
 
-    public function delete(int $id, int $user_id): void {
-        $this->get_by_id($id, $user_id)->delete();
+    public function delete(Note $note): void {
+        $note->delete();
     }
 }

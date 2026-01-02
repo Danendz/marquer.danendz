@@ -7,6 +7,7 @@ use App\Http\Requests\Tasks\StoreTaskCategoryRequest;
 use App\Http\Requests\Tasks\UpdateTaskCategoryRequest;
 use App\Http\Resources\ApiResponse;
 use App\Http\Resources\Tasks\TaskCategoryResource;
+use App\Models\Tasks\TaskCategory;
 use App\Services\Tasks\TaskCategoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,18 +27,16 @@ class TaskCategoryController extends Controller
         return ApiResponse::success(new TaskCategoryResource($category));
     }
 
-    public function update(int $id, UpdateTaskCategoryRequest $request): JsonResponse
+    public function update(TaskCategory $taskCategory, UpdateTaskCategoryRequest $request): JsonResponse
     {
-        $userId = $request->user()->id;
-        $category = $this->taskCategoryService->update($id, $userId, $request->validated());
+        $category = $this->taskCategoryService->update($taskCategory, $request->validated());
 
         return ApiResponse::success(new TaskCategoryResource($category));
     }
 
-    public function destroy(int $id, Request $request): JsonResponse
+    public function destroy(TaskCategory $taskCategory): JsonResponse
     {
-        $userId = $request->user()->id;
-        $this->taskCategoryService->delete($id, $userId);
+        $this->taskCategoryService->delete($taskCategory);
 
         return ApiResponse::success();
     }

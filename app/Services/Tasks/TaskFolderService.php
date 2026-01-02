@@ -9,14 +9,7 @@ class TaskFolderService
 {
     public function list(int $userId): Collection
     {
-        return TaskFolder::where(['user_id' => $userId])->with('categories')->get();
-    }
-
-    public function getById(int $id, int $userId): TaskFolder
-    {
-        return TaskFolder::where('id', $id)
-            ->where('user_id', $userId)
-            ->firstOrFail();
+        return TaskFolder::where(['user_id' => $userId])->with(['categories' => fn($q) => $q->withCount('tasks')])->get();
     }
 
     public function create(int $userId, array $data): TaskFolder
@@ -25,16 +18,15 @@ class TaskFolderService
         return TaskFolder::create($data);
     }
 
-    public function update(int $id, int $userId, array $data): TaskFolder
+    public function update(TaskFolder $taskFolder, array $data): TaskFolder
     {
-        $taskFolder = $this->getById($id, $userId);
         $taskFolder->update($data);
 
         return $taskFolder;
     }
 
-    public function delete(int $id, int $userId): void
+    public function delete(TaskFolder $taskFolder): void
     {
-        $this->getById($id, $userId)->delete();
+        $taskFolder->delete();
     }
 }
