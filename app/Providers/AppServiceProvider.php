@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Auth\JwtStatelessGuard;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Auth::extend('jwt_stateless', static function ($app, string $name, array $config) {
+            return new JwtStatelessGuard($app['request']);
+        });
     }
 }

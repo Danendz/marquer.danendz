@@ -1,11 +1,14 @@
 <?php
 
-namespace App\Http\Requests\notes;
+namespace App\Http\Requests\Notes;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreNoteRequest extends FormRequest
+class UpdateNoteRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
         return true;

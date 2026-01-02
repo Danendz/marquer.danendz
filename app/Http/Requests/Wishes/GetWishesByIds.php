@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\wishes;
+namespace App\Http\Requests\Wishes;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class GetRandomWishRequest extends FormRequest
+class GetWishesByIds extends FormRequest
 {
     public function authorize(): bool
     {
@@ -19,8 +19,8 @@ class GetRandomWishRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'exclude_ids' => ['sometimes', 'array'],
-            'exclude_ids.*' => ['integer'],
+            'ids' => ['sometimes', 'array'],
+            'ids.*' => ['integer'],
         ];
     }
 }

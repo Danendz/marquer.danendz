@@ -12,10 +12,10 @@ class NoteService
         return Note::where('user_id', $user_id)->get();
     }
 
-    public function get_by_id(int $id, int $userId): Note
+    public function get_by_id(int $id, int $user_id): Note
     {
         return Note::where('id', $id)
-            ->where('user_id', $userId)
+            ->where('user_id', $user_id)
             ->firstOrFail();
     }
 

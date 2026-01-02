@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Public;
 
-use App\Http\Requests\wishes\GetRandomWishRequest;
-use App\Http\Requests\wishes\GetWishesByIds;
-use App\Http\Requests\wishes\StoreWishRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Wishes\GetRandomWishRequest;
+use App\Http\Requests\Wishes\GetWishesByIds;
+use App\Http\Requests\Wishes\StoreWishRequest;
 use App\Http\Resources\ApiResponse;
-use App\Http\Resources\wishes\WishResource;
+use App\Http\Resources\Wishes\WishResource;
 use App\Services\WishService;
 use Illuminate\Http\JsonResponse;
 

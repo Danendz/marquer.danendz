@@ -2,7 +2,6 @@
 
 use App\Http\Middleware\EnsureGitHubOidc;
 use App\Http\Middleware\ForceJsonResponseMiddleware;
-use App\Http\Middleware\JwtAuthMiddleware;
 use App\Http\Resources\ApiResponse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -26,7 +25,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'auth' => JwtAuthMiddleware::class,
             'github.oidc' => EnsureGitHubOidc::class
         ]);
 

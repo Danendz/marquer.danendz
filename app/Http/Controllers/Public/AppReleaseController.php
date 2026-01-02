@@ -1,6 +1,7 @@
 <?php
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Public;
 
+use App\Http\Controllers\Controller;
 use App\Http\Resources\ApiResponse;
 use App\Models\AppRelease;
 use Aws\S3\S3Client;
