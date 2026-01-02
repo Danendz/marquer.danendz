@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    / **
+    /**
      * Create the `task_folders` table with columns for id, name, user_id, and timestamps.
      *
      * The table includes a composite unique index on `user_id` and `name`.

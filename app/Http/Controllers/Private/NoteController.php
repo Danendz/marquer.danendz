@@ -62,7 +62,7 @@ class NoteController extends Controller
     }
 
 
-    / **
+    /**
      * Update the given note using validated request data and return the updated note resource.
      *
      * @param Note $note The note to update.
