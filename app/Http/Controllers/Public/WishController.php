@@ -19,6 +19,12 @@ class WishController extends Controller
     {
     }
 
+    /**
+     * Retrieve wishes matching the provided list of IDs and return them as a resource collection.
+     *
+     * @param \App\Http\Requests\Wishes\GetWishesByIds $request Request containing an `ids` array of wish IDs to fetch (defaults to an empty array).
+     * @return \Illuminate\Http\JsonResponse JSON response containing a collection of `WishResource` objects for the matching wishes.
+     */
     public function index(GetWishesByIds $request): JsonResponse
     {
         $data = $request->validated();
@@ -35,6 +41,12 @@ class WishController extends Controller
         return ApiResponse::success(new WishResource($wish));
     }
 
+    /**
+     * Selects a random wish excluding the IDs provided in the request and returns it as an API response.
+     *
+     * @param GetRandomWishRequest $request Request containing an optional `exclude_ids` array of wish IDs to exclude.
+     * @return JsonResponse A successful ApiResponse containing a WishResource representation of the selected random wish.
+     */
     public function random(GetRandomWishRequest $request): JsonResponse
     {
         $data = $request->validated();

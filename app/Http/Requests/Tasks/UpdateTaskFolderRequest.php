@@ -6,6 +6,15 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTaskFolderRequest extends FormRequest
 {
+    /**
+     * Get the validation rules for updating a task folder.
+     *
+     * Validation rules:
+     * - `name`: string, maximum 255 characters.
+     * - `color`: nullable string, maximum 255 characters.
+     *
+     * @return array<string, mixed> Validation rules keyed by field name.
+     */
     public function rules(): array
     {
         return [
@@ -14,6 +23,11 @@ class UpdateTaskFolderRequest extends FormRequest
         ];
     }
 
+    /**
+     * Allow all users to perform this request.
+     *
+     * @return bool `true` to grant authorization (this implementation always grants authorization).
+     */
     public function authorize(): bool
     {
         return true;

@@ -9,6 +9,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin TaskFolder */
 class TaskFolderResource extends JsonResource
 {
+    /**
+     * Transform the resource into an array suitable for JSON responses.
+     *
+     * Includes `id`, `name`, `created_at`, and `updated_at`; includes `categories` only when the
+     * `categories` relationship has been loaded.
+     *
+     * @return array The resource represented as an associative array.
+     */
     public function toArray(Request $request): array
     {
         return [

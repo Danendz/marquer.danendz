@@ -7,7 +7,11 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Create the `task_folders` database table.
+     *
+     * Creates a table named `task_folders` with an auto-incrementing `id`,
+     * a `name` string column, a `user_id` foreign key column, a unique index on `name`,
+     * and `created_at`/`updated_at` timestamp columns.
      */
     public function up(): void
     {
@@ -21,7 +25,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Drop the `task_folders` table if it exists.
      */
     public function down(): void
     {

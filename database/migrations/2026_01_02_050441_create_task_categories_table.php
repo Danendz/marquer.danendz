@@ -7,7 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Create the `task_categories` table with its columns and constraints.
+     *
+     * Creates columns: `id`, `name`, `color`, `task_folder_id`, `user_id`, `created_at`, and `updated_at`.
+     * Adds a foreign key on `task_folder_id` referencing `task_folders.id` with cascade-on-delete and a unique constraint on the combination of `name` and `task_folder_id`.
      */
     public function up(): void
     {
@@ -23,7 +26,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Drop the `task_categories` table if it exists.
      */
     public function down(): void
     {

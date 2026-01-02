@@ -17,7 +17,12 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Registers application bootstrap behavior, including the custom 'jwt_stateless' authentication driver.
+     *
+     * The 'jwt_stateless' driver is registered with the Auth manager and resolves to a JwtStatelessGuard
+     * instance constructed with the current HTTP request.
+     *
+     * @return void
      */
     public function boot(): void
     {
