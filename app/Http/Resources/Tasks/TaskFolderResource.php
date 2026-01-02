@@ -18,7 +18,7 @@ class TaskFolderResource extends JsonResource
             'updated_at' => $this->updated_at,
             'categories' => TaskCategoryResource::collection(
                 $this->whenLoaded('categories')
-            )
+            ),
         ];
     }
 }

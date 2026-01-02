@@ -54,6 +54,9 @@ class JwtStatelessGuard implements Guard
 
     public function setUser(JwtUser|Authenticatable $user): JwtStatelessGuard|static
     {
+        if (!$user instanceof JwtUser) {
+            throw new \InvalidArgumentException('JwtStatelessGuard only accepts JwtUser instances');
+        }
         $this->user = $user;
         return $this;
     }

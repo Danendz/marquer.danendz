@@ -12,7 +12,7 @@ class TaskFolder extends Model
         'user_id',
     ];
 
-    public function categories(): HasMany|TaskFolder
+    public function categories(): HasMany
     {
         return $this->hasMany(TaskCategory::class, 'task_folder_id');
     }
@@ -20,6 +20,9 @@ class TaskFolder extends Model
     public function resolveRouteBinding($value, $field = null): Model|TaskFolder|null
     {
         $user = request()->user();
+        if (!$user) {
+            abort(401, 'Unauthenticated');
+        }
         return $this->where([
             ['user_id', $user->id],
             ['id', $value],

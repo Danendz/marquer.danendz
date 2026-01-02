@@ -35,7 +35,7 @@ Route::middleware('auth:api')->group(function () {
         });
 
         Route::prefix('task-categories')->group(function () {
-            Route::post('/', [TaskCategoryController::class, 'store'])->whereNumber('id');
+            Route::post('/', [TaskCategoryController::class, 'store']);
             Route::put('/{taskCategory}', [TaskCategoryController::class, 'update'])->whereNumber('taskCategory');
             Route::delete('/{taskCategory}', [TaskCategoryController::class, 'destroy'])->whereNumber('taskCategory');
         });

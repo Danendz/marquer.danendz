@@ -43,7 +43,7 @@ class NoteController extends Controller
 
     public function update(Note $note, UpdateNoteRequest $request): JsonResponse
     {
-        return ApiResponse::success($this->noteService->update($note, $request->validated()));
+        return ApiResponse::success(new NoteResource($this->noteService->update($note, $request->validated())));
     }
 
     public function destroy(Note $note): JsonResponse

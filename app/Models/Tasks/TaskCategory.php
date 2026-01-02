@@ -14,7 +14,7 @@ class TaskCategory extends Model
         'user_id'
     ];
 
-    public function tasks(): HasMany|Task
+    public function tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'task_category_id');
     }
@@ -22,6 +22,10 @@ class TaskCategory extends Model
     public function resolveRouteBinding($value, $field = null): Model|TaskCategory|null
     {
         $user = request()->user();
+
+        if (!$user) {
+            abort(401, 'Unauthenticated');
+        }
         return $this->where([
             ['user_id', $user->id],
             ['id', $value],

@@ -16,6 +16,9 @@ class Note extends Model
     public function resolveRouteBinding($value, $field = null): Model|Note|null
     {
         $user = request()->user();
+        if (!$user) {
+            abort(401, 'Unauthenticated');
+        }
         return $this->where([
             ['user_id', $user->id],
             ['id', $value],

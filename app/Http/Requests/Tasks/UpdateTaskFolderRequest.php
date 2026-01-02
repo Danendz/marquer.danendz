@@ -10,7 +10,6 @@ class UpdateTaskFolderRequest extends FormRequest
     {
         return [
             'name' => ['string', 'max:255'],
-            'color' => ['nullable', 'string', 'max:255'],
         ];
     }
 

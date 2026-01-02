@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('user_id');
-            $table->unique('name');
+            $table->unique(['user_id', 'name']);
             $table->timestamps();
         });
     }
