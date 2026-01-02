@@ -18,6 +18,7 @@ class TaskCategoryController extends Controller
     )
     {
     }
+
     public function store(StoreTaskCategoryRequest $request): JsonResponse
     {
         $userId = $request->user()->id;
@@ -26,7 +27,7 @@ class TaskCategoryController extends Controller
         return ApiResponse::success(new TaskCategoryResource($category));
     }
 
-    public function update(TaskCategory $taskCategory, UpdateTaskCategoryRequest $request): JsonResponse
+    public function update(UpdateTaskCategoryRequest $request, TaskCategory $taskCategory): JsonResponse
     {
         $category = $this->taskCategoryService->update($taskCategory, $request->validated());
 

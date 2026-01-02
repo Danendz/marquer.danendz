@@ -5,6 +5,7 @@ namespace App\Auth;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class JwtStatelessGuard implements Guard
@@ -23,11 +24,15 @@ class JwtStatelessGuard implements Guard
 
         try {
             $payload = JWTAuth::parseToken()->payload();
+            $sub = $payload->get('sub');
+            if ($sub === null) {
+                return null;
+            }
             return $this->user = new JwtUser(
-                $payload->get('sub'),
+                $sub,
                 $payload->toArray()
             );
-        } catch (\Throwable $e) {
+        } catch (JWTException $e) {
             return null;
         }
     }
@@ -47,6 +52,10 @@ class JwtStatelessGuard implements Guard
         return !$this->check();
     }
 
+    /**
+     * Stateless guard does not support credential validation.
+     * Authentication is performed via JWT token only.
+     */
     public function validate(array $credentials = []): bool
     {
         return false;
@@ -63,6 +72,6 @@ class JwtStatelessGuard implements Guard
 
     public function hasUser(): bool
     {
-        return (bool)$this->user;
+        return $this->user() !== null;
     }
 }
