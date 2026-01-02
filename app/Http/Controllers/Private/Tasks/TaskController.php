@@ -53,9 +53,9 @@ class TaskController extends Controller
     /**
      * Update the given task with validated input and return its representation.
      *
-     * @param \App\Models\Task $task The task model to update.
-     * @param \App\Http\Requests\UpdateTaskRequest $request Request containing validated update data.
-     * @return \Illuminate\Http\JsonResponse JSON response with a TaskResource representing the updated task.
+     * @param Task $task The task model to update.
+     * @param UpdateTaskRequest $request Request containing validated update data.
+     * @return JsonResponse JSON response with a TaskResource representing the updated task.
      */
     public function update(Task $task, UpdateTaskRequest $request): JsonResponse
     {

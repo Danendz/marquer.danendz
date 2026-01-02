@@ -62,7 +62,7 @@ class JwtStatelessGuard implements Guard
         return $this->user()?->getAuthIdentifier();
     }
 
-    / **
+    /**
      * Determine whether a user is authenticated.
      *
      * @return bool `true` if a user is present, `false` otherwise.
@@ -72,7 +72,7 @@ class JwtStatelessGuard implements Guard
         return (bool)$this->user();
     }
 
-    / **
+    /**
      * Determine whether the current request is unauthenticated.
      *
      * @return bool `true` if there is no authenticated user, `false` otherwise.

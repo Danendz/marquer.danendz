@@ -34,6 +34,12 @@ class WishController extends Controller
         return ApiResponse::success(WishResource::collection($wishes));
     }
 
+    /**
+     * Create a new wish and return it as a JSON resource.
+     *
+     * @param StoreWishRequest $request Request containing validated wish data ('wish', 'signature', 'note').
+     * @return JsonResponse JSON response with the created wish wrapped in `WishResource`.
+     */
     public function store(StoreWishRequest $request): JsonResponse
     {
         $wish = $this->wishService->create($request->validated());

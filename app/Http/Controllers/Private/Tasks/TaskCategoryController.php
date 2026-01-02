@@ -39,6 +39,8 @@ class TaskCategoryController extends Controller
     /**
      * Update an existing task category and return the updated resource.
      *
+     * @param UpdateTaskCategoryRequest $request Request containing validated update data.
+     * @param TaskCategory $taskCategory The task category to update.    *
      * @return JsonResponse The JSON response containing the updated TaskCategoryResource.
      */
     public function update(UpdateTaskCategoryRequest $request, TaskCategory $taskCategory): JsonResponse
