@@ -15,9 +15,12 @@ class UpdateNoteRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Validation rules for an update note request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * - title: must be a string with a maximum length of 255 characters.
+     * - content: must be a string when present.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string> An associative array mapping field names to their validation rules.
      */
     public function rules(): array
     {

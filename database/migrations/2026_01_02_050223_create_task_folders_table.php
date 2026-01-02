@@ -6,8 +6,10 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
+    / **
+     * Create the `task_folders` table with columns for id, name, user_id, and timestamps.
+     *
+     * The table includes a composite unique index on `user_id` and `name`.
      */
     public function up(): void
     {
@@ -21,7 +23,9 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Drop the task_folders table if it exists.
+     *
+     * Reverses the migration by removing the `task_folders` table from the database.
      */
     public function down(): void
     {

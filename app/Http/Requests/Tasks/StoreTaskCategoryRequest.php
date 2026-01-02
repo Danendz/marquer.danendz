@@ -7,6 +7,16 @@ use Illuminate\Validation\Rule;
 
 class StoreTaskCategoryRequest extends FormRequest
 {
+    /**
+     * Define validation rules for creating a task category.
+     *
+     * Returns an array mapping request fields to their validation rules:
+     * - `name`: required string up to 255 characters.
+     * - `color`: optional string up to 255 characters.
+     * - `task_folder_id`: required integer that must exist in `task_folders.id` belonging to the authenticated user.
+     *
+     * @return array<string, array<int, mixed>> Validation rules for the request.
+     */
     public function rules(): array
     {
         return [
@@ -16,6 +26,11 @@ class StoreTaskCategoryRequest extends FormRequest
         ];
     }
 
+    /**
+     * Allow the request for all users.
+     *
+     * @return bool `true` if the request is authorized, `false` otherwise.
+     */
     public function authorize(): bool
     {
         return true;

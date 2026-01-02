@@ -13,12 +13,21 @@ use Illuminate\Http\JsonResponse;
 
 class TaskCategoryController extends Controller
 {
+    /**
+     * Initialize the controller with its TaskCategoryService dependency.
+     */
     public function __construct(
         protected TaskCategoryService $taskCategoryService
     )
     {
     }
 
+    /**
+     * Create a new task category for the authenticated user.
+     *
+     * @param StoreTaskCategoryRequest $request Request containing validated category data.
+     * @return JsonResponse A successful API response containing the created TaskCategoryResource.
+     */
     public function store(StoreTaskCategoryRequest $request): JsonResponse
     {
         $userId = $request->user()->id;
@@ -27,6 +36,11 @@ class TaskCategoryController extends Controller
         return ApiResponse::success(new TaskCategoryResource($category));
     }
 
+    /**
+     * Update an existing task category and return the updated resource.
+     *
+     * @return JsonResponse The JSON response containing the updated TaskCategoryResource.
+     */
     public function update(UpdateTaskCategoryRequest $request, TaskCategory $taskCategory): JsonResponse
     {
         $category = $this->taskCategoryService->update($taskCategory, $request->validated());
@@ -34,6 +48,14 @@ class TaskCategoryController extends Controller
         return ApiResponse::success(new TaskCategoryResource($category));
     }
 
+    /**
+     * Deletes the given task category.
+     *
+     * Deletes the specified TaskCategory and returns a successful API response with no payload.
+     *
+     * @param TaskCategory $taskCategory The task category to delete.
+     * @return JsonResponse Successful API response with no payload.
+     */
     public function destroy(TaskCategory $taskCategory): JsonResponse
     {
         $this->taskCategoryService->delete($taskCategory);
