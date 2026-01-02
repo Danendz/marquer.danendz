@@ -1,19 +1,21 @@
 <?php
 
-namespace App\Http\Resources\notes;
+namespace App\Http\Resources\Wishes;
 
-use App\Models\Note;
+use App\Models\Wish;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/* @mixin Note */
-class NoteListResource extends JsonResource
+/* @mixin Wish */
+class WishResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
+            'wish' => $this->wish,
+            'signature' => $this->signature,
+            'note' => $this->note,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

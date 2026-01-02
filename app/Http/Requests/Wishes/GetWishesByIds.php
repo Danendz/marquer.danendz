@@ -1,14 +1,11 @@
 <?php
 
-namespace App\Http\Requests\notes;
+namespace App\Http\Requests\Wishes;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateNoteRequest extends FormRequest
+class GetWishesByIds extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
@@ -22,8 +19,8 @@ class UpdateNoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['nullable', 'string', 'max:255'],
-            'content' => ['required', 'string']
+            'ids' => ['sometimes', 'array'],
+            'ids.*' => ['integer'],
         ];
     }
 }

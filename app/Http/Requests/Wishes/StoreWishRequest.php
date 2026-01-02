@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\wishes;
+namespace App\Http\Requests\Wishes;
 
 use Illuminate\Foundation\Http\FormRequest;
 
