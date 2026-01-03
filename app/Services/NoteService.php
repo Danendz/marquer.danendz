@@ -39,12 +39,10 @@ readonly class NoteService
                 'user_id' => $userId
             ]);
 
-            DB::afterCommit(function () use ($note) {
-                $this->publisher->publishAnalytics('note.created', [
-                    'event_name' => 'note_created',
-                    'properties' => ['note_id' => $note->id]
-                ]);
-            });
+            $this->publisher->publishAnalytics('note.created', [
+                'event_name' => 'note_created',
+                'properties' => ['note_id' => $note->id]
+            ]);
 
             return $note;
         });

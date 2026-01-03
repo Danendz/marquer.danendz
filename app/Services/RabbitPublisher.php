@@ -46,7 +46,7 @@ class RabbitPublisher
 
         $this->publish($key, [
             ...$payload,
-            'app_name' => 'marquer-backend',
+            'app_name' => config('app.name'),
             'user_id' => auth()->id(),
             'event_id' => (string) Str::uuid(),
         ]);

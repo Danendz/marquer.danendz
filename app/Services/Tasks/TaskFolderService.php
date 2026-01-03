@@ -99,8 +99,6 @@ readonly class TaskFolderService
                     ]
                 ]);
             });
-
-            return $taskFolder;
         });
     }
 }

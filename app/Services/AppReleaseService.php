@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\AppRelease;
 use Aws\S3\S3Client;
-use Illuminate\Support\Facades\DB;
 
 readonly class AppReleaseService
 {
@@ -63,7 +62,7 @@ readonly class AppReleaseService
         $cmd = $s3->getCommand('GetObject', [
             'Bucket' => config('s3.bucket'),
             'Key' => $release->object_key_latest,
-            'ResponseContentType' => $this->contentTypes[$platform],
+            'ResponseContentType' => $this->contentTypes[$platform] ?? 'application/octet-stream',
         ]);
 
         $presignedRequest = $s3->createPresignedRequest($cmd, '+15 minutes');

@@ -102,8 +102,6 @@ readonly class TaskService
                     ]
                 ]);
             });
-
-            return $task;
         });
     }
 }
