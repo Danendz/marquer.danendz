@@ -9,7 +9,7 @@ readonly class AppReleaseService
 {
     private array $contentTypes;
 
-    public function __construct(private RabbitPublisher $publisher)
+    public function __construct(private RabbitPublisherService $publisher, private S3ClientService $s3ClientService)
     {
         $this->contentTypes = [
             'android' => 'application/vnd.android.package-archive',
@@ -48,16 +48,7 @@ readonly class AppReleaseService
     {
         $release = $this->getAppRelease($platform, $channel);
 
-        $s3 = new S3Client([
-            'version' => 'latest',
-            'region' => config('s3.region'),
-            'endpoint' => config('s3.endpoint'),
-            'use_path_style_endpoint' => (bool)config('s3.use_path_style'),
-            'credentials' => [
-                'key' => config('s3.key'),
-                'secret' => config('s3.secret'),
-            ],
-        ]);
+        $s3 = $this->s3ClientService->s3;
 
         $cmd = $s3->getCommand('GetObject', [
             'Bucket' => config('s3.bucket'),
@@ -69,7 +60,7 @@ readonly class AppReleaseService
         $url = (string)$presignedRequest->getUri();
 
         $this->publisher->publishAnalytics('app.downloaded', [
-            'event_name' => 'app_downloaded_latest',
+            'event_name' => 'app_downloaded',
             'properties' => [
                 'release_id' => $release->id,
                 'platform' => $release->platform,

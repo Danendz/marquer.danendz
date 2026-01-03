@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 readonly class NoteService
 {
-    public function __construct(private RabbitPublisher $publisher)
+    public function __construct(private RabbitPublisherService $publisher)
     {
     }
 
@@ -39,10 +39,12 @@ readonly class NoteService
                 'user_id' => $userId
             ]);
 
-            $this->publisher->publishAnalytics('note.created', [
-                'event_name' => 'note_created',
-                'properties' => ['note_id' => $note->id]
-            ]);
+            DB::afterCommit(function () use ($note) {
+                $this->publisher->publishAnalytics('note.created', [
+                    'event_name' => 'note_created',
+                    'properties' => ['note_id' => $note->id]
+                ]);
+            });
 
             return $note;
         });

@@ -3,12 +3,12 @@
 namespace App\Services\Tasks;
 
 use App\Models\Tasks\TaskCategory;
-use App\Services\RabbitPublisher;
+use App\Services\RabbitPublisherService;
 use Illuminate\Support\Facades\DB;
 
 readonly class TaskCategoryService
 {
-    public function __construct(private RabbitPublisher $publisher)
+    public function __construct(private RabbitPublisherService $publisher)
     {
     }
 

@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Internal;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppRelease;
-use App\Services\RabbitPublisher;
+use App\Services\RabbitPublisherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AppReleaseIngestController extends Controller
 {
-    public function __construct(private readonly RabbitPublisher $publisher)
+    public function __construct(private readonly RabbitPublisherService $publisher)
     {
     }
 

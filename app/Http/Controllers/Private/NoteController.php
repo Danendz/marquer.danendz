@@ -10,7 +10,7 @@ use App\Http\Resources\Notes\NoteListResource;
 use App\Http\Resources\Notes\NoteResource;
 use App\Models\Note;
 use App\Services\NoteService;
-use App\Services\RabbitPublisher;
+use App\Services\RabbitPublisherService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -21,7 +21,7 @@ class NoteController extends Controller
      */
     public function __construct(
         protected NoteService $noteService,
-        private readonly RabbitPublisher $publisher
+        private readonly RabbitPublisherService $publisher
     )
     {
     }

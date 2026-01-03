@@ -3,14 +3,14 @@
 namespace App\Services\Tasks;
 
 use App\Models\Tasks\TaskFolder;
-use App\Services\RabbitPublisher;
+use App\Services\RabbitPublisherService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 readonly class TaskFolderService
 {
     public function __construct(
-        private RabbitPublisher $publisher
+        private RabbitPublisherService $publisher
     )
     {
     }

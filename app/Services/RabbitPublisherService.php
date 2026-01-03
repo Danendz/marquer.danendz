@@ -6,7 +6,7 @@ use Illuminate\Support\Str;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class RabbitPublisher
+class RabbitPublisherService
 {
     /**
      * @throws \JsonException
