@@ -20,7 +20,7 @@ class NoteController extends Controller
      * Instantiate the controller with its NoteService dependency.
      */
     public function __construct(
-        protected NoteService $noteService,
+        protected NoteService                   $noteService,
         private readonly RabbitPublisherService $publisher
     )
     {
@@ -60,10 +60,14 @@ class NoteController extends Controller
      */
     public function show(Note $note): JsonResponse
     {
-        $this->publisher->publishAnalytics('note.watched', [
-            'event_name' => 'note_watched',
-            'properties' => ['note_id' => $note->id]
-        ]);
+        try {
+            $this->publisher->publishAnalytics('note.watched', [
+                'event_name' => 'note_watched',
+                'properties' => ['note_id' => $note->id]
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return ApiResponse::success(new NoteResource($note));
     }

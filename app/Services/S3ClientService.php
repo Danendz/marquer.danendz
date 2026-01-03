@@ -6,7 +6,7 @@ use Aws\S3\S3Client;
 
 class S3ClientService
 {
-    public S3Client $s3;
+    private S3Client $s3;
 
     public function __construct()
     {
@@ -20,5 +20,10 @@ class S3ClientService
                 'secret' => config('s3.secret'),
             ],
         ]);
+    }
+
+    public function getClient(): S3Client
+    {
+        return $this->s3;
     }
 }

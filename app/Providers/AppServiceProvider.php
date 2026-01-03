@@ -15,13 +15,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(RabbitPublisherService::class, function () {
-            return new RabbitPublisherService();
-        });
-
-        $this->app->singleton(S3ClientService::class, function () {
-            return new S3ClientService();
-        });
+        $this->app->singleton(RabbitPublisherService::class);
+        $this->app->singleton(S3ClientService::class);
     }
 
     /**

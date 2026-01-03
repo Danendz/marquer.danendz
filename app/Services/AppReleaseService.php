@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\AppRelease;
-use Aws\S3\S3Client;
 
 readonly class AppReleaseService
 {
@@ -31,15 +30,19 @@ readonly class AppReleaseService
     {
         $release = $this->getAppRelease($platform, $channel);
 
-        $this->publisher->publishAnalytics('app.fetched', [
-            'event_name' => 'app_fetched_latest',
-            'properties' => [
-                'release_id' => $release->id,
-                'platform' => $release->platform,
-                'channel' => $release->channel,
-                'version' => $release->version,
-            ]
-        ]);
+        try {
+            $this->publisher->publishAnalytics('app.fetched', [
+                'event_name' => 'app_fetched',
+                'properties' => [
+                    'release_id' => $release->id,
+                    'platform' => $release->platform,
+                    'channel' => $release->channel,
+                    'version' => $release->version,
+                ]
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return $release;
     }
@@ -48,7 +51,7 @@ readonly class AppReleaseService
     {
         $release = $this->getAppRelease($platform, $channel);
 
-        $s3 = $this->s3ClientService->s3;
+        $s3 = $this->s3ClientService->getClient();
 
         $cmd = $s3->getCommand('GetObject', [
             'Bucket' => config('s3.bucket'),
@@ -59,15 +62,19 @@ readonly class AppReleaseService
         $presignedRequest = $s3->createPresignedRequest($cmd, '+15 minutes');
         $url = (string)$presignedRequest->getUri();
 
-        $this->publisher->publishAnalytics('app.downloaded', [
-            'event_name' => 'app_downloaded',
-            'properties' => [
-                'release_id' => $release->id,
-                'platform' => $release->platform,
-                'channel' => $release->channel,
-                'version' => $release->version,
-            ]
-        ]);
+        try {
+            $this->publisher->publishAnalytics('app.downloaded', [
+                'event_name' => 'app_downloaded',
+                'properties' => [
+                    'release_id' => $release->id,
+                    'platform' => $release->platform,
+                    'channel' => $release->channel,
+                    'version' => $release->version,
+                ]
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return $url;
     }
