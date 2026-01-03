@@ -60,15 +60,7 @@ class NoteController extends Controller
      */
     public function show(Note $note): JsonResponse
     {
-        try {
-            $this->publisher->publishAnalytics('note.watched', [
-                'event_name' => 'note_watched',
-                'properties' => ['note_id' => $note->id]
-            ]);
-        } catch (\Throwable $e) {
-            report($e);
-        }
-
+        $this->noteService->view($note);
         return ApiResponse::success(new NoteResource($note));
     }
 

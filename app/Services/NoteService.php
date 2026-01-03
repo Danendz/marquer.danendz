@@ -23,6 +23,18 @@ readonly class NoteService
         return Note::where('user_id', $user_id)->get();
     }
 
+    public function view(Note $note): void
+    {
+        try {
+            $this->publisher->publishAnalytics('note.watched', [
+                'event_name' => 'note_watched',
+                'properties' => ['note_id' => $note->id]
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
+
     /**
      * Create a new Note belonging to the given user.
      *
