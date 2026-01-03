@@ -4,9 +4,14 @@ namespace App\Services;
 
 use App\Models\Note;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
-class NoteService
+readonly class NoteService
 {
+    public function __construct(private RabbitPublisher $publisher)
+    {
+    }
+
     /**
      * Retrieve all notes belonging to the specified user.
      *
@@ -19,46 +24,53 @@ class NoteService
     }
 
     /**
-     * Retrieve a Note by its ID that belongs to the given user.
-     *
-     * @param int $id The Note's ID.
-     * @param int $user_id The user's ID who must own the Note.
-     * @return Note The matching Note model.
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If no matching Note is found.
-     */
-    public function get_by_id(int $id, int $user_id): Note
-    {
-        return Note::where('id', $id)
-            ->where('user_id', $user_id)
-            ->firstOrFail();
-    }
-
-    /**
      * Create a new Note belonging to the given user.
      *
-     * @param int   $user_id The ID of the user who will own the note.
-     * @param array $data    Attributes for the new note.
-     * @return \App\Models\Note The newly created Note model.
+     * @param int $userId The ID of the user who will own the note.
+     * @param array $data Attributes for the new note.
+     * @return Note The newly created Note model.
+     * @throws \Throwable
      */
-    public function create(int $user_id, array $data): Note
+    public function create(int $userId, array $data): Note
     {
-        $data['user_id'] = $user_id;
+        return DB::transaction(function () use ($data, $userId) {
+            $note = Note::create([
+                ...$data,
+                'user_id' => $userId
+            ]);
 
-        return Note::create($data);
+            DB::afterCommit(function () use ($note) {
+                $this->publisher->publishAnalytics('note.created', [
+                    'event_name' => 'note_created',
+                    'properties' => ['note_id' => $note->id]
+                ]);
+            });
+
+            return $note;
+        });
     }
 
     /**
      * Update a Note model with the given attributes.
      *
-     * @param \App\Models\Note $note The Note model to update.
+     * @param Note $note The Note model to update.
      * @param array $data Attributes to set on the Note.
-     * @return \App\Models\Note The updated Note model.
+     * @return Note The updated Note model.
      */
     public function update(Note $note, array $data): Note
     {
-        $note->update($data);
+        return DB::transaction(function () use ($data, $note) {
+            $note->update($data);
 
-        return $note;
+            DB::afterCommit(function () use ($note) {
+                $this->publisher->publishAnalytics('note.updated', [
+                    'event_name' => 'note_updated',
+                    'properties' => ['note_id' => $note->id]
+                ]);
+            });
+
+            return $note;
+        });
     }
 
     /**
@@ -66,7 +78,16 @@ class NoteService
      *
      * @param Note $note The Note model to delete.
      */
-    public function delete(Note $note): void {
-        $note->delete();
+    public function delete(Note $note): void
+    {
+        DB::transaction(function () use ($note) {
+            $note->delete();
+            DB::afterCommit(function () use ($note) {
+                $this->publisher->publishAnalytics('note.updated', [
+                    'event_name' => 'note_deleted',
+                    'properties' => ['note_id' => $note->id]
+                ]);
+            });
+        });
     }
 }

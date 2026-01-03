@@ -9,6 +9,7 @@ use App\Http\Requests\Tasks\UpdateTaskRequest;
 use App\Http\Resources\ApiResponse;
 use App\Http\Resources\Tasks\TaskResource;
 use App\Models\Tasks\Task;
+use App\Services\RabbitPublisher;
 use App\Services\Tasks\TaskService;
 use Illuminate\Http\JsonResponse;
 
@@ -19,7 +20,7 @@ class TaskController extends Controller
      * Create a new TaskController instance with the TaskService dependency.
      */
     public function __construct(
-        protected TaskService $taskService
+        protected TaskService $taskService,
     )
     {
     }

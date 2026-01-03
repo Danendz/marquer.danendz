@@ -3,10 +3,17 @@
 namespace App\Services\Tasks;
 
 use App\Models\Tasks\TaskFolder;
+use App\Services\RabbitPublisher;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
-class TaskFolderService
+readonly class TaskFolderService
 {
+    public function __construct(
+        private RabbitPublisher $publisher
+    )
+    {
+    }
     /**
      * Retrieve task folders belonging to the specified user.
      *
@@ -26,12 +33,27 @@ class TaskFolderService
      *
      * @param int $userId ID of the user who will own the folder.
      * @param array $data Attributes for the new TaskFolder.
-     * @return \App\Models\Tasks\TaskFolder The newly created TaskFolder model.
+     * @return TaskFolder The newly created TaskFolder model.
      */
     public function create(int $userId, array $data): TaskFolder
     {
-        $data['user_id'] = $userId;
-        return TaskFolder::create($data);
+        return DB::transaction(static function () use ($userId, $data) {
+            $taskFolder = TaskFolder::create([
+                ...$data,
+                'user_id' => $userId
+            ]);
+
+            DB::afterCommit(function () use ($taskFolder) {
+                $this->publisher->publishAnalytics('task.folder_created', [
+                    'event_name' => 'task_folder_created',
+                    'properties' => [
+                        'task_folder_id' => $taskFolder->id
+                    ]
+                ]);
+            });
+
+            return $taskFolder;
+        });
     }
 
     /**
@@ -43,9 +65,20 @@ class TaskFolderService
      */
     public function update(TaskFolder $taskFolder, array $data): TaskFolder
     {
-        $taskFolder->update($data);
+        return DB::transaction(static function () use ($taskFolder, $data) {
+            $taskFolder->update($data);
 
-        return $taskFolder;
+            DB::afterCommit(function () use ($taskFolder) {
+                $this->publisher->publishAnalytics('task.folder_updated', [
+                    'event_name' => 'task_folder_updated',
+                    'properties' => [
+                        'task_folder_id' => $taskFolder->id
+                    ]
+                ]);
+            });
+
+            return $taskFolder;
+        });
     }
 
     /**
@@ -55,6 +88,19 @@ class TaskFolderService
      */
     public function delete(TaskFolder $taskFolder): void
     {
-        $taskFolder->delete();
+        DB::transaction(static function () use ($taskFolder) {
+            $taskFolder->delete();
+
+            DB::afterCommit(function () use ($taskFolder) {
+                $this->publisher->publishAnalytics('task.folder_deleted', [
+                    'event_name' => 'task_folder_deleted',
+                    'properties' => [
+                        'task_folder_id' => $taskFolder->id
+                    ]
+                ]);
+            });
+
+            return $taskFolder;
+        });
     }
 }

@@ -4,10 +4,16 @@ namespace App\Http\Controllers\Internal;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppRelease;
+use App\Services\RabbitPublisher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AppReleaseIngestController extends Controller
 {
+    public function __construct(private readonly RabbitPublisher $publisher)
+    {
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -26,25 +32,40 @@ class AppReleaseIngestController extends Controller
 
         $buildNumber = null;
         if (!empty($data['build_number']) && ctype_digit($data['build_number'])) {
-            $buildNumber = (int) $data['build_number'];
+            $buildNumber = (int)$data['build_number'];
         }
 
-        $release = AppRelease::updateOrCreate(
-            ['platform' => $data['platform'], 'channel' => $data['channel'], 'version' => $data['version']],
-            [
-                'build_number' => $buildNumber,
-                'version_full' => $data['version_full'] ?? null,
-                'git_sha' => $data['git_sha'] ?? null,
-                'bucket' => $data['bucket'],
-                'object_key_latest' => $data['key_latest'],
-                'object_key_commit' => $data['key_commit'],
-                'released_at' => now(),
-            ]
-        );
+        return DB::transaction(static function () use ($data, $buildNumber) {
+            $release = AppRelease::updateOrCreate(
+                ['platform' => $data['platform'], 'channel' => $data['channel'], 'version' => $data['version']],
+                [
+                    'build_number' => $buildNumber,
+                    'version_full' => $data['version_full'] ?? null,
+                    'git_sha' => $data['git_sha'] ?? null,
+                    'bucket' => $data['bucket'],
+                    'object_key_latest' => $data['key_latest'],
+                    'object_key_commit' => $data['key_commit'],
+                    'released_at' => now(),
+                ]
+            );
 
-        return response()->json([
-            'ok' => true,
-            'id' => $release->id,
-        ]);
+            DB::afterCommit(function () use ($release) {
+                $this->publisher->publishAnalytics('app.released', [
+                    'event_name' => 'app_released',
+                    'properties' => [
+                        'release_id' => $release->id,
+                        'platform' => $release->platform,
+                        'channel' => $release->channel,
+                        'version' => $release->version,
+                        'released_at' => $release->released_at,
+                    ]
+                ]);
+            });
+
+            return response()->json([
+                'ok' => true,
+                'id' => $release->id,
+            ]);
+        });
     }
 }

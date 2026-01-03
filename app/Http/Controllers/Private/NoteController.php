@@ -10,6 +10,7 @@ use App\Http\Resources\Notes\NoteListResource;
 use App\Http\Resources\Notes\NoteResource;
 use App\Models\Note;
 use App\Services\NoteService;
+use App\Services\RabbitPublisher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -19,7 +20,8 @@ class NoteController extends Controller
      * Instantiate the controller with its NoteService dependency.
      */
     public function __construct(
-        protected NoteService $noteService
+        protected NoteService $noteService,
+        private readonly RabbitPublisher $publisher
     )
     {
     }
@@ -58,6 +60,11 @@ class NoteController extends Controller
      */
     public function show(Note $note): JsonResponse
     {
+        $this->publisher->publishAnalytics('note.watched', [
+            'event_name' => 'note_watched',
+            'properties' => ['note_id' => $note->id]
+        ]);
+
         return ApiResponse::success(new NoteResource($note));
     }
 

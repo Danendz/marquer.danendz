@@ -3,16 +3,24 @@
 namespace App\Services\Tasks;
 
 use App\Models\Tasks\Task;
+use App\Services\RabbitPublisher;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
-class TaskService
+readonly class TaskService
 {
+    public function __construct(
+        private RabbitPublisher $publisher
+    )
+    {
+    }
+
     /**
      * Retrieve tasks for a user filtered by task category.
      *
      * @param int $userId The ID of the user whose tasks will be retrieved.
      * @param array $data Array containing query parameters; must include `task_category_id` to filter by category.
-     * @return \Illuminate\Support\Collection Collection of Task models matching the given user and category.
+     * @return Collection Collection of Task models matching the given user and category.
      */
     public function list(int $userId, array $data): Collection
     {
@@ -32,23 +40,48 @@ class TaskService
      */
     public function create(int $userId, array $data): Task
     {
-        $data['user_id'] = $userId;
+        return DB::transaction(static function () use ($userId, $data) {
+            $task = Task::create([
+                ...$data,
+                'user_id' => $userId
+            ]);
 
-        return Task::create($data);
+            DB::afterCommit(function () use ($task) {
+                $this->publisher->publishAnalytics('task.created', [
+                    'event_name' => 'task_created',
+                    'properties' => [
+                        'task_id' => $task->id
+                    ]
+                ]);
+            });
+
+            return $task;
+        });
     }
 
     /**
      * Update the given Task with the provided attributes.
      *
-     * @param \App\Models\Tasks\Task $task The Task model to update.
+     * @param Task $task The Task model to update.
      * @param array $data Associative array of attributes to apply to the task.
-     * @return \App\Models\Tasks\Task The updated Task instance.
+     * @return Task The updated Task instance.
      */
     public function update(Task $task, array $data): Task
     {
-        $task->update($data);
+        return DB::transaction(static function () use ($task, $data) {
+            $task->update($data);
 
-        return $task;
+            DB::afterCommit(function () use ($task) {
+                $this->publisher->publishAnalytics('task.updated', [
+                    'event_name' => 'task_updated',
+                    'properties' => [
+                        'task_id' => $task->id
+                    ]
+                ]);
+            });
+
+            return $task;
+        });
     }
 
     /**
@@ -58,6 +91,19 @@ class TaskService
      */
     public function delete(Task $task): void
     {
-        $task->delete();
+        DB::transaction(static function () use ($task) {
+            $task->delete();
+
+            DB::afterCommit(function () use ($task) {
+                $this->publisher->publishAnalytics('task.deleted', [
+                    'event_name' => 'task_deleted',
+                    'properties' => [
+                        'task_id' => $task->id
+                    ]
+                ]);
+            });
+
+            return $task;
+        });
     }
 }
