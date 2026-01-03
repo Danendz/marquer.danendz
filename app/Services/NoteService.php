@@ -83,7 +83,7 @@ readonly class NoteService
         DB::transaction(function () use ($note) {
             $note->delete();
             DB::afterCommit(function () use ($note) {
-                $this->publisher->publishAnalytics('note.updated', [
+                $this->publisher->publishAnalytics('note.deleted', [
                     'event_name' => 'note_deleted',
                     'properties' => ['note_id' => $note->id]
                 ]);

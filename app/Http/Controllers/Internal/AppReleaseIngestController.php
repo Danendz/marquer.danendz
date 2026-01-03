@@ -35,7 +35,7 @@ class AppReleaseIngestController extends Controller
             $buildNumber = (int)$data['build_number'];
         }
 
-        return DB::transaction(static function () use ($data, $buildNumber) {
+        return DB::transaction(function () use ($data, $buildNumber) {
             $release = AppRelease::updateOrCreate(
                 ['platform' => $data['platform'], 'channel' => $data['channel'], 'version' => $data['version']],
                 [

@@ -18,7 +18,7 @@ class AppReleaseResource extends JsonResource
             'build_number' => $this->build_number,
             'version_full' => $this->version_full,
             'download_url' => url("/api/marquer/app/latest/download?platform={$this->platform}&channel={$this->channel}"),
-            'released_at' => $this->released_at->toISOString(),
+            'released_at' => $this->released_at?->toISOString(),
         ];
     }
 }

@@ -40,10 +40,9 @@ class RabbitPublisher
 
     public function publishAnalytics(string $key, array $payload): void
     {
-//        $isDev = app()->environment(['local', 'development', 'testing']);
-//        if ($isDev) {
-//            return;
-//        }
+        if (!config('rabbit.enabled')) {
+            return;
+        }
 
         $this->publish($key, [
             ...$payload,

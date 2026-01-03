@@ -40,7 +40,7 @@ readonly class TaskService
      */
     public function create(int $userId, array $data): Task
     {
-        return DB::transaction(static function () use ($userId, $data) {
+        return DB::transaction(function () use ($userId, $data) {
             $task = Task::create([
                 ...$data,
                 'user_id' => $userId
@@ -68,7 +68,7 @@ readonly class TaskService
      */
     public function update(Task $task, array $data): Task
     {
-        return DB::transaction(static function () use ($task, $data) {
+        return DB::transaction(function () use ($task, $data) {
             $task->update($data);
 
             DB::afterCommit(function () use ($task) {
@@ -91,7 +91,7 @@ readonly class TaskService
      */
     public function delete(Task $task): void
     {
-        DB::transaction(static function () use ($task) {
+        DB::transaction(function () use ($task) {
             $task->delete();
 
             DB::afterCommit(function () use ($task) {

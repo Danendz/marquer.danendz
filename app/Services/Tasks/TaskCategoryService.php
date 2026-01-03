@@ -16,11 +16,12 @@ readonly class TaskCategoryService
      * Set the 'color' key in the provided data array to the default value '#fff'.
      *
      * @param array $data Input data array to update.
-     * @return array The updated data array with `'color'` set to `'#fff'`.
+     * @return string The updated data array with `'color'` set to `'#fff'`.
      */
-    private function setRandomColor(array $data): array {
-        $data['color'] = '#fff';
-        return $data;
+    private function getRandomColor(): string
+    {
+        //TODO: ADD random color generation
+        return '#fff';
     }
 
     /**
@@ -36,7 +37,7 @@ readonly class TaskCategoryService
             $taskCategory = TaskCategory::create([
                 ...$data,
                 'user_id' => $userId,
-                'color' => $data['color'] ?? $this->setRandomColor($data)
+                'color' => $data['color'] ?? $this->getRandomColor()
             ]);
 
             DB::afterCommit(function () use ($taskCategory) {
@@ -89,8 +90,6 @@ readonly class TaskCategoryService
                     'properties' => ['task_category_id' => $taskCategory->id]
                 ]);
             });
-
-            return $taskCategory;
         });
     }
 }

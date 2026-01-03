@@ -37,7 +37,7 @@ readonly class TaskFolderService
      */
     public function create(int $userId, array $data): TaskFolder
     {
-        return DB::transaction(static function () use ($userId, $data) {
+        return DB::transaction(function () use ($userId, $data) {
             $taskFolder = TaskFolder::create([
                 ...$data,
                 'user_id' => $userId
@@ -88,7 +88,7 @@ readonly class TaskFolderService
      */
     public function delete(TaskFolder $taskFolder): void
     {
-        DB::transaction(static function () use ($taskFolder) {
+        DB::transaction(function () use ($taskFolder) {
             $taskFolder->delete();
 
             DB::afterCommit(function () use ($taskFolder) {
