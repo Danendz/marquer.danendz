@@ -3,18 +3,25 @@
 namespace App\Services\Tasks;
 
 use App\Models\Tasks\TaskCategory;
+use App\Services\RabbitPublisherService;
+use Illuminate\Support\Facades\DB;
 
-class TaskCategoryService
+readonly class TaskCategoryService
 {
+    public function __construct(private RabbitPublisherService $publisher)
+    {
+    }
+
     /**
      * Set the 'color' key in the provided data array to the default value '#fff'.
      *
      * @param array $data Input data array to update.
-     * @return array The updated data array with `'color'` set to `'#fff'`.
+     * @return string The updated data array with `'color'` set to `'#fff'`.
      */
-    private function setRandomColor(array $data): array {
-        $data['color'] = '#fff';
-        return $data;
+    private function getRandomColor(): string
+    {
+        //TODO: ADD random color generation
+        return '#fff';
     }
 
     /**
@@ -22,31 +29,49 @@ class TaskCategoryService
      *
      * @param int $userId ID of the user who will own the created TaskCategory.
      * @param array $data Attributes for the new TaskCategory; if `color` is missing or empty a default will be applied.
-     * @return \App\Models\TaskCategory The created TaskCategory instance.
+     * @return TaskCategory The created TaskCategory instance.
      */
     public function create(int $userId, array $data): TaskCategory
     {
-        $data['user_id'] = $userId;
+        return DB::transaction(function () use ($data, $userId) {
+            $taskCategory = TaskCategory::create([
+                ...$data,
+                'user_id' => $userId,
+                'color' => $data['color'] ?? $this->getRandomColor()
+            ]);
 
-        if (empty($data['color'])) {
-            $data = $this->setRandomColor($data);
-        }
+            DB::afterCommit(function () use ($taskCategory) {
+                $this->publisher->publishAnalytics('task.category_created', [
+                    'event_name' => 'task_category_created',
+                    'properties' => ['task_category_id' => $taskCategory->id]
+                ]);
+            });
 
-        return TaskCategory::create($data);
+            return $taskCategory;
+        });
     }
 
     /**
      * Updates an existing TaskCategory with the provided attributes.
      *
-     * @param \App\Models\TaskCategory $taskCategory The TaskCategory model to update.
+     * @param TaskCategory $taskCategory The TaskCategory model to update.
      * @param array $data Associative array of attributes to apply to the model.
-     * @return \App\Models\TaskCategory The updated TaskCategory instance.
+     * @return TaskCategory The updated TaskCategory instance.
      */
     public function update(TaskCategory $taskCategory, array $data): TaskCategory
     {
-        $taskCategory->update($data);
+        return DB::transaction(function () use ($data, $taskCategory) {
+            $taskCategory->update($data);
 
-        return $taskCategory;
+            DB::afterCommit(function () use ($taskCategory) {
+                $this->publisher->publishAnalytics('task.category_updated', [
+                    'event_name' => 'task_category_updated',
+                    'properties' => ['task_category_id' => $taskCategory->id]
+                ]);
+            });
+
+            return $taskCategory;
+        });
     }
 
     /**
@@ -56,6 +81,15 @@ class TaskCategoryService
      */
     public function delete(TaskCategory $taskCategory): void
     {
-        $taskCategory->delete();
+        DB::transaction(function () use ($taskCategory) {
+            $taskCategory->delete();
+
+            DB::afterCommit(function () use ($taskCategory) {
+                $this->publisher->publishAnalytics('task.category_deleted', [
+                    'event_name' => 'task_category_deleted',
+                    'properties' => ['task_category_id' => $taskCategory->id]
+                ]);
+            });
+        });
     }
 }

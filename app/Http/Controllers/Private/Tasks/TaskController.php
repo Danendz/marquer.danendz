@@ -19,7 +19,7 @@ class TaskController extends Controller
      * Create a new TaskController instance with the TaskService dependency.
      */
     public function __construct(
-        protected TaskService $taskService
+        protected TaskService $taskService,
     )
     {
     }
