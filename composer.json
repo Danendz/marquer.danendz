@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
+        "ext-sockets": "*",
         "ext-openssl": "*",
         "aws/aws-sdk-php": "^3.369",
         "laravel/framework": "^12.0",
