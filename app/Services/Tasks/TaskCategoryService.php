@@ -40,6 +40,8 @@ readonly class TaskCategoryService
                 'color' => $data['color'] ?? $this->getRandomColor()
             ]);
 
+            $taskCategory->loadCount('tasks');
+
             DB::afterCommit(function () use ($taskCategory) {
                 $this->publisher->publishAnalytics('task.category_created', [
                     'event_name' => 'task_category_created',
@@ -62,6 +64,8 @@ readonly class TaskCategoryService
     {
         return DB::transaction(function () use ($data, $taskCategory) {
             $taskCategory->update($data);
+
+            $taskCategory->loadCount('tasks');
 
             DB::afterCommit(function () use ($taskCategory) {
                 $this->publisher->publishAnalytics('task.category_updated', [
