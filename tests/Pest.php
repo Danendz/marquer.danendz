@@ -1,5 +1,8 @@
 <?php
 
+use App\Auth\JwtUser;
+use Illuminate\Support\Facades\Auth;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -12,7 +15,7 @@
 */
 
 pest()->extend(Tests\TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
 /*
@@ -41,7 +44,8 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function actingAsJwtUser(int $id = 1): void
 {
-    // ..
+    $user = new JwtUser($id);
+    Auth::guard('api')->setUser($user);
 }

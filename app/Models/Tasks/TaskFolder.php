@@ -2,11 +2,14 @@
 
 namespace App\Models\Tasks;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TaskFolder extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'user_id',

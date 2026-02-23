@@ -24,11 +24,17 @@ readonly class TaskService
      */
     public function list(int $userId, array $data): Collection
     {
-        return Task::where([
-                ['user_id', $userId],
-                ['task_category_id', $data['task_category_id']]
-            ]
-        )->get();
+        $query = Task::where('user_id', $userId);
+
+        if (!empty($data['task_category_id'])) {
+            $query->where('task_category_id', $data['task_category_id']);
+        }
+
+        if (!empty($data['status'])) {
+            $query->where('status', $data['status']);
+        }
+
+        return $query->get();
     }
 
     /**

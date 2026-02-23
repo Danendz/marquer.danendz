@@ -3,11 +3,14 @@
 namespace App\Models\Tasks;
 
 use App\Enums\TaskStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Task extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'task_category_id',
         'name',

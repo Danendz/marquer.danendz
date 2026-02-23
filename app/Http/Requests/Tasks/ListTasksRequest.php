@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tasks;
 
+use App\Enums\TaskStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,7 +19,8 @@ class ListTasksRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'task_category_id' => ['required', 'integer', Rule::exists('task_categories', 'id')->where('user_id', $this->user()->id)]
+            'task_category_id' => ['sometimes', 'nullable', 'integer', Rule::exists('task_categories', 'id')->where('user_id', $this->user()->id)],
+            'status' => ['sometimes', 'string', Rule::enum(TaskStatus::class)],
         ];
     }
 
