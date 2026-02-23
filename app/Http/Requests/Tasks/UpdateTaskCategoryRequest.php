@@ -15,7 +15,7 @@ class UpdateTaskCategoryRequest extends FormRequest
     {
         return [
             'name' => ['string', 'max:255'],
-            'color' => ['nullable', 'string', 'max:255'],
+            'color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
         ];
     }
 

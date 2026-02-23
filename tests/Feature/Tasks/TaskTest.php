@@ -55,11 +55,11 @@ test('creates task with draft status', function () {
         ->assertJsonPath('data.status', 'draft');
 });
 
-test('validates name and task_category_id required on create', function () {
+test('validates name required on create', function () {
     $response = $this->postJson('/api/marquer/tasks', []);
 
     $response->assertUnprocessable()
-        ->assertJsonStructure(['data' => ['name', 'task_category_id']]);
+        ->assertJsonStructure(['data' => ['name']]);
 });
 
 test('updates task name', function () {

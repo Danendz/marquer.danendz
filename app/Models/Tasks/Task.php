@@ -41,7 +41,7 @@ class Task extends Model
     {
         $user = request()->user();
         if (!$user) {
-            abort(401, 'Unauthenticated');
+            abort(404);
         }
         return $this->where([
             ['user_id', $user->id],
