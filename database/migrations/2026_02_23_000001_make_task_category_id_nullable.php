@@ -18,6 +18,8 @@ return new class extends Migration
 
     public function down(): void
     {
+        // NOTE: This rollback will fail if any task has a NULL task_category_id.
+        // Manual data cleanup (reassign or delete orphaned tasks) is required before rolling back.
         Schema::table('tasks', function (Blueprint $table) {
             $table->dropForeign(['task_category_id']);
             $table->unsignedBigInteger('task_category_id')->nullable(false)->change();

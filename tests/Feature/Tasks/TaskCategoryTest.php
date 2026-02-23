@@ -22,7 +22,7 @@ test('creates category with color', function () {
         ->assertJsonPath('data.color', '#ff0000');
 });
 
-test('creates category with default color when color provided', function () {
+test('preserves explicitly provided color on category create', function () {
     $folder = TaskFolder::factory()->create(['user_id' => 1]);
 
     $response = $this->postJson('/api/marquer/task-categories', [
@@ -59,11 +59,11 @@ test('updates category name and color', function () {
 
 test('deletes category and cascades tasks', function () {
     $category = TaskCategory::factory()->create(['user_id' => 1]);
-    Task::factory()->create(['task_category_id' => $category->id, 'user_id' => 1]);
+    $task = Task::factory()->create(['task_category_id' => $category->id, 'user_id' => 1]);
 
     $response = $this->deleteJson("/api/marquer/task-categories/{$category->id}");
 
     $response->assertOk();
     $this->assertDatabaseMissing('task_categories', ['id' => $category->id]);
-    $this->assertDatabaseMissing('tasks', ['task_category_id' => $category->id]);
+    $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
 });
