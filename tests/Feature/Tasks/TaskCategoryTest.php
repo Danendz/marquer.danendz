@@ -57,7 +57,7 @@ test('updates category name and color', function () {
         ->assertJsonPath('data.color', '#00ff00');
 });
 
-test('deletes category and cascades tasks', function () {
+test('deletes category and nullifies task category', function () {
     $category = TaskCategory::factory()->create(['user_id' => 1]);
     $task = Task::factory()->create(['task_category_id' => $category->id, 'user_id' => 1]);
 
@@ -65,5 +65,5 @@ test('deletes category and cascades tasks', function () {
 
     $response->assertOk();
     $this->assertDatabaseMissing('task_categories', ['id' => $category->id]);
-    $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
+    $this->assertDatabaseHas('tasks', ['id' => $task->id, 'task_category_id' => null]);
 });
