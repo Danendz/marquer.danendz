@@ -30,11 +30,15 @@ readonly class TaskService
             $query->where('task_category_id', $data['task_category_id']);
         }
 
+        if (!empty($data['task_folder_id'])) {
+            $query->whereHas('category', fn($q) => $q->where('task_folder_id', $data['task_folder_id']));
+        }
+
         if (!empty($data['status'])) {
             $query->where('status', $data['status']);
         }
 
-        return $query->get();
+        return $query->orderBy('created_at', 'desc')->get();
     }
 
     /**
