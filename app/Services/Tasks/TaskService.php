@@ -16,11 +16,11 @@ readonly class TaskService
     }
 
     /**
-     * Retrieve tasks for a user filtered by task category.
+     * Retrieve tasks for a user with optional filters.
      *
      * @param int $userId The ID of the user whose tasks will be retrieved.
-     * @param array $data Array containing query parameters; must include `task_category_id` to filter by category.
-     * @return Collection Collection of Task models matching the given user and category.
+     * @param array $data Optional filters: `task_category_id`, `task_folder_id`, `status`.
+     * @return Collection Collection of Task models matching the given criteria.
      */
     public function list(int $userId, array $data): Collection
     {
