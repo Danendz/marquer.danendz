@@ -20,4 +20,9 @@ class TaskFactory extends Factory
             'user_id' => 1,
         ];
     }
+
+    public function withoutCategory(): static
+    {
+        return $this->state(['task_category_id' => null]);
+    }
 }

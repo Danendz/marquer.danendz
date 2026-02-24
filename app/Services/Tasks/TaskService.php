@@ -26,11 +26,11 @@ readonly class TaskService
     {
         $query = Task::where('user_id', $userId);
 
-        if (!empty($data['task_category_id'])) {
+        if (isset($data['task_category_id']) && $data['task_category_id'] !== null) {
             $query->where('task_category_id', $data['task_category_id']);
         }
 
-        if (!empty($data['task_folder_id'])) {
+        if (isset($data['task_folder_id']) && $data['task_folder_id'] !== null) {
             $query->whereHas('category', fn($q) => $q->where('task_folder_id', $data['task_folder_id']));
         }
 

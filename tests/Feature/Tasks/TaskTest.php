@@ -55,6 +55,16 @@ test('creates task with draft status', function () {
         ->assertJsonPath('data.status', 'draft');
 });
 
+test('creates task without task_category_id', function () {
+    $response = $this->postJson('/api/marquer/tasks', [
+        'name' => 'Uncategorized task',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('data.name', 'Uncategorized task')
+        ->assertJsonPath('data.task_category_id', null);
+});
+
 test('validates name required on create', function () {
     $response = $this->postJson('/api/marquer/tasks', []);
 
