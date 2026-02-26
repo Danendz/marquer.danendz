@@ -20,6 +20,7 @@ class UpdateTaskRequest extends FormRequest
         return [
             'name' => ['string', 'max:255'],
             'status' => [Rule::enum(TaskStatus::class)],
+            'task_category_id' => ['nullable', 'integer', Rule::exists('task_categories', 'id')->where('user_id', $this->user()->id)],
         ];
     }
 

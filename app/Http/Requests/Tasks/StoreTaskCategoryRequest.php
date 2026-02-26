@@ -21,7 +21,7 @@ class StoreTaskCategoryRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'color' => ['nullable', 'string', 'max:255'],
+            'color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'task_folder_id' => ['required', 'integer', Rule::exists('task_folders', 'id')->where('user_id', $this->user()->id)]
         ];
     }

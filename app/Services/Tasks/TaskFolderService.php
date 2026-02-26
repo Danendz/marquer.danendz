@@ -65,7 +65,7 @@ readonly class TaskFolderService
      */
     public function update(TaskFolder $taskFolder, array $data): TaskFolder
     {
-        return DB::transaction(static function () use ($taskFolder, $data) {
+        return DB::transaction(function () use ($taskFolder, $data) {
             $taskFolder->update($data);
 
             DB::afterCommit(function () use ($taskFolder) {

@@ -2,12 +2,15 @@
 
 namespace App\Models\Tasks;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TaskCategory extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'task_folder_id',
         'name',
@@ -48,7 +51,7 @@ class TaskCategory extends Model
         $user = request()->user();
 
         if (!$user) {
-            abort(401, 'Unauthenticated');
+            abort(404);
         }
         return $this->where([
             ['user_id', $user->id],
