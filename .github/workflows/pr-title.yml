@@ -9,10 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          TITLE="${{ github.event.pull_request.title }}"
           PATTERN='^(feat|fix|chore|refactor|docs|test|bump|hotfix): .+'
-          if ! echo "$TITLE" | grep -qE "$PATTERN"; then
+          if ! printf '%s' "$PR_TITLE" | grep -qE "$PATTERN"; then
             echo "ERROR: PR title does not match the required format."
             echo ""
             echo "Expected: <type>: <description>"
@@ -23,6 +24,6 @@ jobs:
             echo "  fix: null pointer on app release ingest"
             echo "  bump: 1.0.9"
             echo ""
-            echo "Got: $TITLE"
+            echo "Got: $PR_TITLE"
             exit 1
           fi
