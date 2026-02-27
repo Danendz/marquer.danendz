@@ -23,6 +23,7 @@ class AppReleaseIngestController extends Controller
             'build_number' => 'nullable|string|max:20',
             'version_full' => 'nullable|string|max:64',
             'git_sha' => 'nullable|string|size:40',
+            'changelog' => 'nullable|string|max:2000',
 
             'bucket' => 'required|string',
             'endpoint' => 'required|string',
@@ -36,17 +37,23 @@ class AppReleaseIngestController extends Controller
         }
 
         return DB::transaction(function () use ($data, $buildNumber) {
+            $attributes = [
+                'build_number' => $buildNumber,
+                'version_full' => $data['version_full'] ?? null,
+                'git_sha' => $data['git_sha'] ?? null,
+                'bucket' => $data['bucket'],
+                'object_key_latest' => $data['key_latest'],
+                'object_key_commit' => $data['key_commit'],
+                'released_at' => now(),
+            ];
+
+            if (!empty($data['changelog'])) {
+                $attributes['changelog'] = $data['changelog'];
+            }
+
             $release = AppRelease::updateOrCreate(
                 ['platform' => $data['platform'], 'channel' => $data['channel'], 'version' => $data['version']],
-                [
-                    'build_number' => $buildNumber,
-                    'version_full' => $data['version_full'] ?? null,
-                    'git_sha' => $data['git_sha'] ?? null,
-                    'bucket' => $data['bucket'],
-                    'object_key_latest' => $data['key_latest'],
-                    'object_key_commit' => $data['key_commit'],
-                    'released_at' => now(),
-                ]
+                $attributes
             );
 
             DB::afterCommit(function () use ($release) {
