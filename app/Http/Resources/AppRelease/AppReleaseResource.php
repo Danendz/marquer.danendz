@@ -18,6 +18,7 @@ class AppReleaseResource extends JsonResource
             'build_number' => $this->build_number,
             'version_full' => $this->version_full,
             'download_url' => route('app-release.download-latest', ['platform' => $this->platform, 'channel' => $this->channel]),
+            'changelog' => $this->changelog,
             'released_at' => $this->released_at?->toISOString(),
         ];
     }

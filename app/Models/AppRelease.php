@@ -7,7 +7,7 @@ class AppRelease extends Model
 {
     protected $fillable = [
         'platform', 'channel',
-        'version', 'build_number', 'version_full',
+        'version', 'build_number', 'version_full', 'changelog',
         'git_sha',
         'bucket', 'object_key_latest', 'object_key_commit',
         'released_at',
