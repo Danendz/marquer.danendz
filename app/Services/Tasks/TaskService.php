@@ -57,7 +57,7 @@ readonly class TaskService
             ]);
 
             DB::afterCommit(function () use ($task) {
-                $this->publisher->publishAnalytics('task.created', [
+                $this->publisher->publishAnalyticsSafely('task.created', [
                     'event_name' => 'task_created',
                     'properties' => [
                         'task_id' => $task->id
@@ -82,7 +82,7 @@ readonly class TaskService
             $task->update($data);
 
             DB::afterCommit(function () use ($task) {
-                $this->publisher->publishAnalytics('task.updated', [
+                $this->publisher->publishAnalyticsSafely('task.updated', [
                     'event_name' => 'task_updated',
                     'properties' => [
                         'task_id' => $task->id
@@ -105,7 +105,7 @@ readonly class TaskService
             $task->delete();
 
             DB::afterCommit(function () use ($task) {
-                $this->publisher->publishAnalytics('task.deleted', [
+                $this->publisher->publishAnalyticsSafely('task.deleted', [
                     'event_name' => 'task_deleted',
                     'properties' => [
                         'task_id' => $task->id

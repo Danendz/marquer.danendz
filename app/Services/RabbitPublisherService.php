@@ -55,4 +55,13 @@ class RabbitPublisherService
             'event_id' => (string)Str::uuid(),
         ]);
     }
+
+    public function publishAnalyticsSafely(string $key, array $payload): void
+    {
+        try {
+            $this->publishAnalytics($key, $payload);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
 }

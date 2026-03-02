@@ -29,7 +29,7 @@ readonly class UserStudySettingsService
             $settings = UserStudySettings::updateOrCreate(['user_id' => $userId], $data);
 
             DB::afterCommit(function () use ($settings) {
-                $this->publisher->publishAnalytics('study.settings_updated', [
+                $this->publisher->publishAnalyticsSafely('study.settings_updated', [
                     'event_name' => 'study_settings_updated',
                     'properties' => [
                         'work_minutes' => $settings->default_work_minutes,

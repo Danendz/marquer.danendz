@@ -57,7 +57,7 @@ class AppReleaseIngestController extends Controller
             );
 
             DB::afterCommit(function () use ($release) {
-                $this->publisher->publishAnalytics('app.released', [
+                $this->publisher->publishAnalyticsSafely('app.released', [
                     'event_name' => 'app_released',
                     'properties' => [
                         'release_id' => $release->id,
