@@ -25,11 +25,11 @@ class StoreStudySessionRequest extends FormRequest
                 ),
             ],
             'timer_mode' => ['required', Rule::enum(TimerMode::class)],
-            'planned_duration_seconds' => ['required_if:timer_mode,count_down', 'nullable', 'integer', 'min:60'],
-            'pomodoro_work_minutes' => ['required_if:timer_mode,pomodoro', 'nullable', 'integer', 'min:1', 'max:120'],
-            'pomodoro_short_break_minutes' => ['required_if:timer_mode,pomodoro', 'nullable', 'integer', 'min:1', 'max:60'],
-            'pomodoro_long_break_minutes' => ['required_if:timer_mode,pomodoro', 'nullable', 'integer', 'min:1', 'max:60'],
-            'pomodoro_cycles' => ['required_if:timer_mode,pomodoro', 'nullable', 'integer', 'min:1', 'max:20'],
+            'planned_duration_seconds' => ['required_if:timer_mode,count_down', 'prohibited_unless:timer_mode,count_down', 'nullable', 'integer', 'min:60'],
+            'pomodoro_work_minutes' => ['required_if:timer_mode,pomodoro', 'prohibited_unless:timer_mode,pomodoro', 'nullable', 'integer', 'min:1', 'max:120'],
+            'pomodoro_short_break_minutes' => ['required_if:timer_mode,pomodoro', 'prohibited_unless:timer_mode,pomodoro', 'nullable', 'integer', 'min:1', 'max:60'],
+            'pomodoro_long_break_minutes' => ['required_if:timer_mode,pomodoro', 'prohibited_unless:timer_mode,pomodoro', 'nullable', 'integer', 'min:1', 'max:60'],
+            'pomodoro_cycles' => ['required_if:timer_mode,pomodoro', 'prohibited_unless:timer_mode,pomodoro', 'nullable', 'integer', 'min:1', 'max:20'],
         ];
     }
 }

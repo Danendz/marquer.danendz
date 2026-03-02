@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin UserStudySettings */
 class UserStudySettingsResource extends JsonResource
 {
-    public function toArray(Request $request): array
+    public function toArray(Request $_request): array
     {
         return [
             'default_work_minutes' => $this->default_work_minutes,

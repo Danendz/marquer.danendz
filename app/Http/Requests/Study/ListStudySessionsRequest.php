@@ -17,8 +17,14 @@ class ListStudySessionsRequest extends FormRequest
     {
         return [
             'date_from' => ['sometimes', 'nullable', 'date'],
-            'date_to' => ['sometimes', 'nullable', 'date'],
-            'study_subject_id' => ['sometimes', 'nullable', 'integer'],
+            'date_to' => ['sometimes', 'nullable', 'date', 'after_or_equal:date_from'],
+            'study_subject_id' => [
+                'sometimes',
+                'nullable',
+                Rule::exists('study_subjects', 'id')->where(
+                    fn($q) => $q->where(fn($q2) => $q2->whereNull('user_id')->orWhere('user_id', $this->user()->id))
+                ),
+            ],
             'status' => ['sometimes', 'nullable', Rule::enum(StudySessionStatus::class)],
         ];
     }

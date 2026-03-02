@@ -32,20 +32,12 @@ class StudySubjectController extends Controller
 
     public function update(StudySubject $studySubject, UpdateStudySubjectRequest $request): JsonResponse
     {
-        if ($studySubject->user_id === null) {
-            return ApiResponse::error(message: 'Cannot modify system subjects.', status: 403);
-        }
-
         $subject = $this->service->update($studySubject, $request->validated());
         return ApiResponse::success(new StudySubjectResource($subject));
     }
 
     public function destroy(StudySubject $studySubject): JsonResponse
     {
-        if ($studySubject->user_id === null) {
-            return ApiResponse::error(message: 'Cannot delete system subjects.', status: 403);
-        }
-
         $this->service->delete($studySubject);
         return ApiResponse::success();
     }

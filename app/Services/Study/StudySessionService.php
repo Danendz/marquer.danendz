@@ -5,6 +5,8 @@ namespace App\Services\Study;
 use App\Enums\StudySessionStatus;
 use App\Models\Study\StudySession;
 use App\Services\RabbitPublisherService;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -25,7 +27,7 @@ readonly class StudySessionService
         }
 
         if (!empty($data['date_to'])) {
-            $query->where('started_at', '<=', $data['date_to']);
+            $query->where('started_at', '<=', Carbon::parse($data['date_to'])->endOfDay());
         }
 
         if (!empty($data['study_subject_id'])) {
@@ -52,15 +54,21 @@ readonly class StudySessionService
                 ]);
             }
 
-            $session = StudySession::create([
-                ...$data,
-                'user_id' => $userId,
-                'started_at' => now(),
-                'status' => StudySessionStatus::Active,
-            ]);
+            try {
+                $session = StudySession::create([
+                    ...$data,
+                    'user_id' => $userId,
+                    'started_at' => now(),
+                    'status' => StudySessionStatus::Active,
+                ]);
+            } catch (UniqueConstraintViolationException) {
+                throw ValidationException::withMessages([
+                    'session' => ['You already have an active study session.'],
+                ]);
+            }
 
             DB::afterCommit(function () use ($session) {
-                $this->publisher->publishAnalytics('study.session_started', [
+                $this->publishAnalyticsSafely('study.session_started', [
                     'event_name' => 'study_session_started',
                     'properties' => [
                         'study_session_id' => $session->id,
@@ -76,6 +84,12 @@ readonly class StudySessionService
 
     public function update(StudySession $session, array $data): StudySession
     {
+        if (in_array($session->status, [StudySessionStatus::Completed, StudySessionStatus::Cancelled])) {
+            throw ValidationException::withMessages([
+                'session' => ['Cannot update a session that is already completed or cancelled.'],
+            ]);
+        }
+
         return DB::transaction(function () use ($session, $data) {
             $oldStatus = $session->status;
             $session->update($data);
@@ -83,7 +97,7 @@ readonly class StudySessionService
 
             DB::afterCommit(function () use ($session, $oldStatus, $newStatus) {
                 if ($newStatus === StudySessionStatus::Paused && $oldStatus === StudySessionStatus::Active) {
-                    $this->publisher->publishAnalytics('study.session_paused', [
+                    $this->publishAnalyticsSafely('study.session_paused', [
                         'event_name' => 'study_session_paused',
                         'properties' => [
                             'study_session_id' => $session->id,
@@ -91,7 +105,7 @@ readonly class StudySessionService
                         ],
                     ]);
                 } elseif ($newStatus === StudySessionStatus::Active && $oldStatus === StudySessionStatus::Paused) {
-                    $this->publisher->publishAnalytics('study.session_resumed', [
+                    $this->publishAnalyticsSafely('study.session_resumed', [
                         'event_name' => 'study_session_resumed',
                         'properties' => ['study_session_id' => $session->id],
                     ]);
@@ -104,6 +118,12 @@ readonly class StudySessionService
 
     public function complete(StudySession $session, array $data): StudySession
     {
+        if (in_array($session->status, [StudySessionStatus::Completed, StudySessionStatus::Cancelled])) {
+            throw ValidationException::withMessages([
+                'session' => ['Session is already in a terminal state.'],
+            ]);
+        }
+
         return DB::transaction(function () use ($session, $data) {
             $session->update([
                 ...$data,
@@ -112,7 +132,7 @@ readonly class StudySessionService
             ]);
 
             DB::afterCommit(function () use ($session) {
-                $this->publisher->publishAnalytics('study.session_completed', [
+                $this->publishAnalyticsSafely('study.session_completed', [
                     'event_name' => 'study_session_completed',
                     'properties' => [
                         'study_session_id' => $session->id,
@@ -129,11 +149,17 @@ readonly class StudySessionService
 
     public function cancel(StudySession $session): StudySession
     {
+        if (in_array($session->status, [StudySessionStatus::Completed, StudySessionStatus::Cancelled])) {
+            throw ValidationException::withMessages([
+                'session' => ['Session is already in a terminal state.'],
+            ]);
+        }
+
         return DB::transaction(function () use ($session) {
             $session->update(['status' => StudySessionStatus::Cancelled, 'ended_at' => now()]);
 
             DB::afterCommit(function () use ($session) {
-                $this->publisher->publishAnalytics('study.session_cancelled', [
+                $this->publishAnalyticsSafely('study.session_cancelled', [
                     'event_name' => 'study_session_cancelled',
                     'properties' => ['study_session_id' => $session->id],
                 ]);
@@ -141,6 +167,15 @@ readonly class StudySessionService
 
             return $session;
         });
+    }
+
+    private function publishAnalyticsSafely(string $key, array $payload): void
+    {
+        try {
+            $this->publisher->publishAnalytics($key, $payload);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function stats(int $userId): array

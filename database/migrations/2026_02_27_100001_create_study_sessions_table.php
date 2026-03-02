@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -27,7 +28,11 @@ return new class extends Migration
             $table->timestamps();
             $table->index(['user_id', 'started_at']);
             $table->index(['user_id', 'status']);
+            $table->foreign('study_subject_id')->references('id')->on('study_subjects')->onDelete('set null');
         });
+
+        // Partial unique index: prevents a user from having more than one active session
+        DB::statement("CREATE UNIQUE INDEX study_sessions_one_active_per_user ON study_sessions (user_id) WHERE status = 'active'");
     }
 
     public function down(): void

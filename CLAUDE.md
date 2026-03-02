@@ -1,5 +1,22 @@
 # Marquer Backend — Claude guidance
 
+## Database — Users Table
+
+The `users` table is managed by the **Auth service** (separate repo/deployment).
+This backend has **no migration for `users`** — do not create one and do not add
+foreign key constraints referencing `users` in migrations. All tables store
+`user_id` as a plain `unsignedBigInteger` without a DB-level FK.
+
+## Before Committing
+
+Always run tests with Sail before committing:
+
+```bash
+./vendor/bin/sail test
+```
+
+Do not commit if any tests fail.
+
 ## PR Title Convention
 
 All PRs must follow: `<type>: <description>`

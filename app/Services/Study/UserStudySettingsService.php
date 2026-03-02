@@ -15,7 +15,7 @@ readonly class UserStudySettingsService
 
     public function get(int $userId): UserStudySettings
     {
-        return UserStudySettings::firstOrNew(['user_id' => $userId], [
+        return UserStudySettings::firstOrCreate(['user_id' => $userId], [
             'default_work_minutes' => 25,
             'default_short_break_minutes' => 5,
             'default_long_break_minutes' => 15,
