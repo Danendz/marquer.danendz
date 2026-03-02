@@ -28,7 +28,7 @@ readonly class StudySubjectService
             $subject = StudySubject::create([...$data, 'user_id' => $userId]);
 
             DB::afterCommit(function () use ($subject) {
-                $this->publisher->publishAnalytics('study.subject_created', [
+                $this->publisher->publishAnalyticsSafely('study.subject_created', [
                     'event_name' => 'study_subject_created',
                     'properties' => ['study_subject_id' => $subject->id],
                 ]);
@@ -48,7 +48,7 @@ readonly class StudySubjectService
             $subject->update($data);
 
             DB::afterCommit(function () use ($subject) {
-                $this->publisher->publishAnalytics('study.subject_updated', [
+                $this->publisher->publishAnalyticsSafely('study.subject_updated', [
                     'event_name' => 'study_subject_updated',
                     'properties' => ['study_subject_id' => $subject->id],
                 ]);
@@ -68,7 +68,7 @@ readonly class StudySubjectService
             $subject->delete();
 
             DB::afterCommit(function () use ($subject) {
-                $this->publisher->publishAnalytics('study.subject_deleted', [
+                $this->publisher->publishAnalyticsSafely('study.subject_deleted', [
                     'event_name' => 'study_subject_deleted',
                     'properties' => ['study_subject_id' => $subject->id],
                 ]);

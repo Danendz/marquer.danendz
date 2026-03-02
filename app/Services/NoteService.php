@@ -25,14 +25,10 @@ readonly class NoteService
 
     public function view(Note $note): void
     {
-        try {
-            $this->publisher->publishAnalytics('note.watched', [
-                'event_name' => 'note_watched',
-                'properties' => ['note_id' => $note->id]
-            ]);
-        } catch (\Throwable $e) {
-            report($e);
-        }
+        $this->publisher->publishAnalyticsSafely('note.watched', [
+            'event_name' => 'note_watched',
+            'properties' => ['note_id' => $note->id]
+        ]);
     }
 
     /**
@@ -52,7 +48,7 @@ readonly class NoteService
             ]);
 
             DB::afterCommit(function () use ($note) {
-                $this->publisher->publishAnalytics('note.created', [
+                $this->publisher->publishAnalyticsSafely('note.created', [
                     'event_name' => 'note_created',
                     'properties' => ['note_id' => $note->id]
                 ]);
@@ -75,7 +71,7 @@ readonly class NoteService
             $note->update($data);
 
             DB::afterCommit(function () use ($note) {
-                $this->publisher->publishAnalytics('note.updated', [
+                $this->publisher->publishAnalyticsSafely('note.updated', [
                     'event_name' => 'note_updated',
                     'properties' => ['note_id' => $note->id]
                 ]);
@@ -95,7 +91,7 @@ readonly class NoteService
         DB::transaction(function () use ($note) {
             $note->delete();
             DB::afterCommit(function () use ($note) {
-                $this->publisher->publishAnalytics('note.deleted', [
+                $this->publisher->publishAnalyticsSafely('note.deleted', [
                     'event_name' => 'note_deleted',
                     'properties' => ['note_id' => $note->id]
                 ]);

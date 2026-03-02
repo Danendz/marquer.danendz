@@ -43,7 +43,7 @@ readonly class TaskCategoryService
             $taskCategory->loadCount('tasks');
 
             DB::afterCommit(function () use ($taskCategory) {
-                $this->publisher->publishAnalytics('task.category_created', [
+                $this->publisher->publishAnalyticsSafely('task.category_created', [
                     'event_name' => 'task_category_created',
                     'properties' => ['task_category_id' => $taskCategory->id]
                 ]);
@@ -68,7 +68,7 @@ readonly class TaskCategoryService
             $taskCategory->loadCount('tasks');
 
             DB::afterCommit(function () use ($taskCategory) {
-                $this->publisher->publishAnalytics('task.category_updated', [
+                $this->publisher->publishAnalyticsSafely('task.category_updated', [
                     'event_name' => 'task_category_updated',
                     'properties' => ['task_category_id' => $taskCategory->id]
                 ]);
@@ -89,7 +89,7 @@ readonly class TaskCategoryService
             $taskCategory->delete();
 
             DB::afterCommit(function () use ($taskCategory) {
-                $this->publisher->publishAnalytics('task.category_deleted', [
+                $this->publisher->publishAnalyticsSafely('task.category_deleted', [
                     'event_name' => 'task_category_deleted',
                     'properties' => ['task_category_id' => $taskCategory->id]
                 ]);

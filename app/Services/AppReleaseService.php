@@ -30,19 +30,15 @@ readonly class AppReleaseService
     {
         $release = $this->getAppRelease($platform, $channel);
 
-        try {
-            $this->publisher->publishAnalytics('app.fetched', [
-                'event_name' => 'app_fetched',
-                'properties' => [
-                    'release_id' => $release->id,
-                    'platform' => $release->platform,
-                    'channel' => $release->channel,
-                    'version' => $release->version,
-                ]
-            ]);
-        } catch (\Throwable $e) {
-            report($e);
-        }
+        $this->publisher->publishAnalyticsSafely('app.fetched', [
+            'event_name' => 'app_fetched',
+            'properties' => [
+                'release_id' => $release->id,
+                'platform' => $release->platform,
+                'channel' => $release->channel,
+                'version' => $release->version,
+            ]
+        ]);
 
         return $release;
     }
@@ -62,19 +58,15 @@ readonly class AppReleaseService
         $presignedRequest = $s3->createPresignedRequest($cmd, '+15 minutes');
         $url = (string)$presignedRequest->getUri();
 
-        try {
-            $this->publisher->publishAnalytics('app.downloaded', [
-                'event_name' => 'app_downloaded',
-                'properties' => [
-                    'release_id' => $release->id,
-                    'platform' => $release->platform,
-                    'channel' => $release->channel,
-                    'version' => $release->version,
-                ]
-            ]);
-        } catch (\Throwable $e) {
-            report($e);
-        }
+        $this->publisher->publishAnalyticsSafely('app.downloaded', [
+            'event_name' => 'app_downloaded',
+            'properties' => [
+                'release_id' => $release->id,
+                'platform' => $release->platform,
+                'channel' => $release->channel,
+                'version' => $release->version,
+            ]
+        ]);
 
         return $url;
     }

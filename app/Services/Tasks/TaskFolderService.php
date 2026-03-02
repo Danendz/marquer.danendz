@@ -44,7 +44,7 @@ readonly class TaskFolderService
             ]);
 
             DB::afterCommit(function () use ($taskFolder) {
-                $this->publisher->publishAnalytics('task.folder_created', [
+                $this->publisher->publishAnalyticsSafely('task.folder_created', [
                     'event_name' => 'task_folder_created',
                     'properties' => [
                         'task_folder_id' => $taskFolder->id
@@ -69,7 +69,7 @@ readonly class TaskFolderService
             $taskFolder->update($data);
 
             DB::afterCommit(function () use ($taskFolder) {
-                $this->publisher->publishAnalytics('task.folder_updated', [
+                $this->publisher->publishAnalyticsSafely('task.folder_updated', [
                     'event_name' => 'task_folder_updated',
                     'properties' => [
                         'task_folder_id' => $taskFolder->id
@@ -92,7 +92,7 @@ readonly class TaskFolderService
             $taskFolder->delete();
 
             DB::afterCommit(function () use ($taskFolder) {
-                $this->publisher->publishAnalytics('task.folder_deleted', [
+                $this->publisher->publishAnalyticsSafely('task.folder_deleted', [
                     'event_name' => 'task_folder_deleted',
                     'properties' => [
                         'task_folder_id' => $taskFolder->id

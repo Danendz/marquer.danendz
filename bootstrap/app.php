@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -110,6 +111,15 @@ return Application::configure(basePath: dirname(__DIR__))
                     data: $isDev ? $get_error_data($e) : null,
                     message: $isDev ? $e->getMessage() : 'Not found.',
                     status: 404,
+                );
+            }
+
+            // Generic HTTP exceptions (403, etc.)
+            if ($e instanceof HttpExceptionInterface) {
+                return ApiResponse::error(
+                    data: $isDev ? $get_error_data($e) : null,
+                    message: $isDev ? $e->getMessage() : 'Error.',
+                    status: $e->getStatusCode(),
                 );
             }
 
