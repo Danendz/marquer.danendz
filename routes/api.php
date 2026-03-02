@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Internal\AppReleaseIngestController;
 use App\Http\Controllers\Private\NoteController;
+use App\Http\Controllers\Private\Study\StudySessionController;
+use App\Http\Controllers\Private\Study\StudySubjectController;
+use App\Http\Controllers\Private\Study\UserStudySettingsController;
 use App\Http\Controllers\Private\Tasks\TaskCategoryController;
 use App\Http\Controllers\Private\Tasks\TaskController;
 use App\Http\Controllers\Private\Tasks\TaskFolderController;
@@ -38,6 +41,30 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [TaskCategoryController::class, 'store']);
             Route::put('/{taskCategory}', [TaskCategoryController::class, 'update'])->whereNumber('taskCategory');
             Route::delete('/{taskCategory}', [TaskCategoryController::class, 'destroy'])->whereNumber('taskCategory');
+        });
+
+        // Study
+        Route::prefix('study')->group(function () {
+            Route::prefix('subjects')->group(function () {
+                Route::get('/', [StudySubjectController::class, 'index']);
+                Route::post('/', [StudySubjectController::class, 'store']);
+                Route::put('/{studySubject}', [StudySubjectController::class, 'update'])->whereNumber('studySubject');
+                Route::delete('/{studySubject}', [StudySubjectController::class, 'destroy'])->whereNumber('studySubject');
+            });
+
+            Route::prefix('sessions')->group(function () {
+                Route::get('/', [StudySessionController::class, 'index']);
+                Route::get('/stats', [StudySessionController::class, 'stats']);
+                Route::post('/', [StudySessionController::class, 'store']);
+                Route::put('/{studySession}', [StudySessionController::class, 'update'])->whereNumber('studySession');
+                Route::post('/{studySession}/complete', [StudySessionController::class, 'complete'])->whereNumber('studySession');
+                Route::post('/{studySession}/cancel', [StudySessionController::class, 'cancel'])->whereNumber('studySession');
+            });
+
+            Route::prefix('settings')->group(function () {
+                Route::get('/', [UserStudySettingsController::class, 'show']);
+                Route::put('/', [UserStudySettingsController::class, 'upsert']);
+            });
         });
     });
 });
