@@ -1,50 +1,80 @@
-# Marquer Backend — Claude guidance
+# CLAUDE.md — marquer-backend
 
-## Database — Users Table
+Laravel 12 REST API. Notes, tasks, study sessions, wishes, app releases.
+Auth via shared JWT with Auth service. RabbitMQ for analytics. S3/MinIO for APK uploads.
+Deployed on Railway.com at `api.danendz.com/api/marquer/`.
 
-The `users` table is managed by the **Auth service** (separate repo/deployment).
-This backend has **no migration for `users`** — do not create one and do not add
-foreign key constraints referencing `users` in migrations. All tables store
-`user_id` as a plain `unsignedBigInteger` without a DB-level FK.
-
-## Before Committing
-
-Always run tests with Sail before committing:
+## Commands
 
 ```bash
-./vendor/bin/sail test
+composer setup   # install + migrations + npm build (first time)
+composer dev     # server + queue worker + Vite (all at once)
+composer test    # run tests
+./vendor/bin/sail up -d   # start Docker (PostgreSQL + MinIO)
+./vendor/bin/sail test    # run tests inside Docker
+./vendor/bin/sail artisan migrate
 ```
 
-Do not commit if any tests fail.
+Always run `./vendor/bin/sail test` before committing. Do not commit if tests fail.
+
+## Architecture
+
+`Controller → FormRequest → Service → Model → DB`
+
+- Controllers in `Private/` (auth required), `Public/` (open), `Internal/` (GitHub OIDC)
+- **Controllers never contain logic, never use try/catch** — let exceptions bubble up
+- All responses via `ApiResponse::success()` / `ApiResponse::error()` (`app/Http/Resources/ApiResponse.php`)
+- Services hold all business logic (`app/Services/`)
+
+## Auth
+
+JWT token from Auth service. Same `JWT_SECRET` shared. No `users` table here, no login/register.
+`auth()->id()` gives the current user's ID. Protected routes use `middleware('auth:api')`.
+
+## Database
+
+- **No `users` table**, no FK constraints to users
+- `$table->unsignedBigInteger('user_id');` — plain column, no `foreignId()`
+- PostgreSQL only — never SQLite
+
+## Model Conventions
+
+Always scope route binding to the auth user (prevents cross-user access):
+```php
+public function resolveRouteBinding($value, $field = null): ?self
+{
+    return $this->where('id', $value)->where('user_id', auth()->id())->firstOrFail();
+}
+```
+Always use explicit `$fillable`, never `$guarded = []`.
+
+## Global Error Handler (`bootstrap/app.php`)
+
+| Exception | Status |
+|-----------|--------|
+| `ValidationException` | 422 |
+| `TokenExpiredException` / `TokenInvalidException` / `JWTException` | 401 |
+| `UnauthorizedHttpException` / `AuthenticationException` | 401 |
+| `ModelNotFoundException` / `NotFoundHttpException` | 404 |
+| `HttpExceptionInterface` (e.g. `abort(403)`) | dynamic |
+| Fallback | 500 |
+
+Dev environments include full exception details in the response.
+
+## RabbitMQ
+
+`RabbitPublisherService` — publish analytics events from service methods, never from controllers.
+`RABBITMQ_ENABLED=false` skips publishing silently (default in dev).
 
 ## PR Title Convention
 
-All PRs must follow: `<type>: <description>`
+`<type>: <description>` — enforced by `pr-title.yml`
 
-| Type | Changelog effect |
-|------|-----------------|
-| `feat` | Individual bullet in changelog |
-| `fix` | Individual bullet in changelog |
-| `hotfix` | Individual bullet in changelog |
-| `chore` | Collapsed → "Performance improvements and minor bug fixes" |
-| `refactor` | Collapsed → "Performance improvements and minor bug fixes" |
-| `docs` | Collapsed → "Performance improvements and minor bug fixes" |
-| `test` | Collapsed → "Performance improvements and minor bug fixes" |
-| `bump` | Collapsed → "Performance improvements and minor bug fixes" |
+| Type | Effect |
+|------|--------|
+| `feat`, `fix`, `hotfix` | Individual changelog entry |
+| `chore`, `refactor`, `test`, `docs`, `bump` | Collapsed |
 
-Examples:
-- `feat: add changelog to update dialog`
-- `fix: null pointer on app release ingest`
-- `bump: 1.0.9`
-- `chore: update dependencies`
+## Adding a New Feature
 
-The `pr-title.yml` workflow enforces this on every PR.
-
-## App Release Changelog Flow
-
-1. CI reads `pubspec.yaml` version from marquer-mobile
-2. If `v{version}` git tag already exists → rebuild, no changelog update
-3. If tag is new → collects PR titles since previous tag → generates changelog → sends to backend
-4. Backend stores changelog in `app_releases.changelog` (nullable text)
-5. `AppReleaseResource` returns `changelog` in API response
-6. Mobile displays it in the update dialog
+Use `/new-feature` to start — it will ask clarifying questions before any code is written.
