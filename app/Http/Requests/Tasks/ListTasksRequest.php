@@ -24,6 +24,7 @@ class ListTasksRequest extends FormRequest
             'task_category_id' => ['sometimes', 'nullable', 'integer', Rule::exists('task_categories', 'id')->where('user_id', $this->user()->id)],
             'task_folder_id' => ['sometimes', 'nullable', 'integer', Rule::exists('task_folders', 'id')->where('user_id', $this->user()->id)],
             'status' => ['sometimes', Rule::enum(TaskStatus::class)],
+            'date' => ['sometimes', 'nullable', 'date'],
         ];
     }
 
