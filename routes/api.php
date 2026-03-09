@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Internal\AppReleaseIngestController;
 use App\Http\Controllers\Private\Calendar\CalendarOverviewController;
+use App\Http\Controllers\Private\Calendar\CountdownController;
+use App\Http\Controllers\Private\Calendar\PlanController;
 use App\Http\Controllers\Private\NoteController;
 use App\Http\Controllers\Private\Study\StudySessionController;
 use App\Http\Controllers\Private\Study\StudySubjectController;
@@ -47,6 +49,17 @@ Route::middleware('auth:api')->group(function () {
         // Calendar
         Route::prefix('calendar')->group(function () {
             Route::get('/overview', CalendarOverviewController::class);
+
+            Route::prefix('countdowns')->group(function () {
+                Route::get('/', [CountdownController::class, 'index']);
+                Route::post('/', [CountdownController::class, 'store']);
+                Route::put('/{countdown}', [CountdownController::class, 'update'])->whereNumber('countdown');
+                Route::delete('/{countdown}', [CountdownController::class, 'destroy'])->whereNumber('countdown');
+            });
+
+            Route::get('/plans/for-date', [PlanController::class, 'forDate']);
+            Route::apiResource('plans', PlanController::class);
+            Route::post('/plan-tasks/{planTask}/toggle', [PlanController::class, 'toggleCompletion'])->whereNumber('planTask');
         });
 
         // Study
