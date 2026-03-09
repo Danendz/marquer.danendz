@@ -18,6 +18,8 @@ class PlanForDateResource extends JsonResource
                 'id' => $task->id,
                 'name' => $task->name,
                 'sort_order' => $task->sort_order,
+                'start_time' => $task->start_time,
+                'end_time' => $task->end_time,
                 'is_completed' => $task->completions->isNotEmpty(),
             ]),
         ];

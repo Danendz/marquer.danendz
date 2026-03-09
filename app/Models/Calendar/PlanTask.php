@@ -12,6 +12,8 @@ class PlanTask extends Model
         'plan_id',
         'name',
         'sort_order',
+        'start_time',
+        'end_time',
     ];
 
     public function plan(): BelongsTo

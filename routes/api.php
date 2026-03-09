@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Internal\AppReleaseIngestController;
 use App\Http\Controllers\Private\Calendar\CalendarOverviewController;
+use App\Http\Controllers\Private\Calendar\CalendarWeekController;
 use App\Http\Controllers\Private\Calendar\CountdownController;
 use App\Http\Controllers\Private\Calendar\PlanController;
 use App\Http\Controllers\Private\NoteController;
@@ -49,6 +50,7 @@ Route::middleware('auth:api')->group(function () {
         // Calendar
         Route::prefix('calendar')->group(function () {
             Route::get('/overview', CalendarOverviewController::class);
+            Route::get('/week', CalendarWeekController::class);
 
             Route::prefix('countdowns')->group(function () {
                 Route::get('/', [CountdownController::class, 'index']);

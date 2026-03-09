@@ -44,6 +44,8 @@ class UpdatePlanRequest extends FormRequest
             'tasks.*.id' => ['sometimes', 'nullable', 'integer'],
             'tasks.*.name' => ['required', 'string', 'max:255'],
             'tasks.*.sort_order' => ['required', 'integer'],
+            'tasks.*.start_time' => ['sometimes', 'nullable', 'date_format:H:i'],
+            'tasks.*.end_time' => ['sometimes', 'nullable', 'date_format:H:i'],
         ];
     }
 }

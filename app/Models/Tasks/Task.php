@@ -16,6 +16,8 @@ class Task extends Model
         'name',
         'status',
         'date',
+        'start_time',
+        'end_time',
         'user_id',
     ];
 

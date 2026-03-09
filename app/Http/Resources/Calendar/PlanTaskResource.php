@@ -15,6 +15,8 @@ class PlanTaskResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'sort_order' => $this->sort_order,
+            'start_time' => $this->start_time,
+            'end_time' => $this->end_time,
         ];
     }
 }

@@ -42,6 +42,8 @@ class StorePlanRequest extends FormRequest
             'tasks' => ['required', 'array', 'min:1'],
             'tasks.*.name' => ['required', 'string', 'max:255'],
             'tasks.*.sort_order' => ['required', 'integer'],
+            'tasks.*.start_time' => ['sometimes', 'nullable', 'date_format:H:i'],
+            'tasks.*.end_time' => ['sometimes', 'nullable', 'date_format:H:i'],
         ];
     }
 }

@@ -39,6 +39,8 @@ readonly class PlanService
                 $plan->tasks()->create([
                     'name' => $taskData['name'],
                     'sort_order' => $taskData['sort_order'] ?? 0,
+                    'start_time' => $taskData['start_time'] ?? null,
+                    'end_time' => $taskData['end_time'] ?? null,
                 ]);
             }
 
@@ -67,11 +69,15 @@ readonly class PlanService
                     $plan->tasks()->where('id', $taskData['id'])->update([
                         'name' => $taskData['name'],
                         'sort_order' => $taskData['sort_order'] ?? 0,
+                        'start_time' => $taskData['start_time'] ?? null,
+                        'end_time' => $taskData['end_time'] ?? null,
                     ]);
                 } else {
                     $plan->tasks()->create([
                         'name' => $taskData['name'],
                         'sort_order' => $taskData['sort_order'] ?? 0,
+                        'start_time' => $taskData['start_time'] ?? null,
+                        'end_time' => $taskData['end_time'] ?? null,
                     ]);
                 }
             }
