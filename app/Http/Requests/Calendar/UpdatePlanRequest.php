@@ -24,7 +24,11 @@ class UpdatePlanRequest extends FormRequest
                 Rule::requiredIf(in_array($type, ['weekly', 'monthly_dates'])),
                 'nullable', 'array', 'min:1',
             ],
-            'schedule.days.*' => ['integer', 'min:0', 'max:31'],
+            'schedule.days.*' => match ($type) {
+                'weekly' => ['integer', 'min:0', 'max:6'],
+                'monthly_dates' => ['integer', 'min:1', 'max:31'],
+                default => ['integer'],
+            },
             'schedule.every' => [
                 Rule::requiredIf($type === 'interval'),
                 'nullable', 'integer', 'min:1',

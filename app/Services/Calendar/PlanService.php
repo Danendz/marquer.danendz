@@ -62,6 +62,12 @@ readonly class PlanService
             $incomingTasks = $data['tasks'] ?? [];
             $incomingIds = collect($incomingTasks)->pluck('id')->filter()->all();
 
+            $existingIds = $plan->tasks()->pluck('id')->all();
+            $unknownIds = array_diff($incomingIds, $existingIds);
+            if (!empty($unknownIds)) {
+                abort(422, 'Some task IDs do not belong to this plan.');
+            }
+
             $plan->tasks()->whereNotIn('id', $incomingIds)->delete();
 
             foreach ($incomingTasks as $taskData) {
@@ -117,20 +123,23 @@ readonly class PlanService
 
     public function toggleTaskCompletion(PlanTask $planTask, string $date): bool
     {
-        $existing = PlanTaskCompletion::where('plan_task_id', $planTask->id)
-            ->where('completed_date', $date)
-            ->first();
+        return DB::transaction(function () use ($planTask, $date) {
+            $existing = PlanTaskCompletion::where('plan_task_id', $planTask->id)
+                ->where('completed_date', $date)
+                ->lockForUpdate()
+                ->first();
 
-        if ($existing) {
-            $existing->delete();
-            return false;
-        }
+            if ($existing) {
+                $existing->delete();
+                return false;
+            }
 
-        PlanTaskCompletion::create([
-            'plan_task_id' => $planTask->id,
-            'completed_date' => $date,
-        ]);
+            PlanTaskCompletion::create([
+                'plan_task_id' => $planTask->id,
+                'completed_date' => $date,
+            ]);
 
-        return true;
+            return true;
+        });
     }
 }

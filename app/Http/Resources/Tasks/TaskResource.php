@@ -12,10 +12,8 @@ class TaskResource extends JsonResource
     /**
      * Transform the Task model into an associative array for JSON responses.
      *
-     * The returned array contains the Task's `id`, `name`, `status`, `created_at`, and `updated_at` attributes.
-     *
      * @param \Illuminate\Http\Request $request The incoming request (unused).
-     * @return array Associative array with keys `id`, `name`, `status`, `created_at`, and `updated_at`.
+     * @return array Associative array with keys `id`, `name`, `status`, `date`, `start_time`, `end_time`, `task_category_id`, `created_at`, and `updated_at`.
      */
     public function toArray(Request $request): array
     {

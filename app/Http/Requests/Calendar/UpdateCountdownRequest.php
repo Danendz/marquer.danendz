@@ -15,7 +15,7 @@ class UpdateCountdownRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'string', 'max:255'],
-            'target_date' => ['sometimes', 'date', 'after:today'],
+            'target_date' => ['sometimes', 'date', 'after_or_equal:today'],
             'is_pinned' => ['sometimes', 'boolean'],
             'bg_image' => ['sometimes', 'string', 'max:255'],
         ];

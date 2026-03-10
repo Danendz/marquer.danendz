@@ -97,8 +97,9 @@ describe('CalendarWeekController', function () {
         $response = $this->getJson('/api/marquer/calendar/week?from=2026-03-09&to=2026-03-15');
 
         $countdowns = $response->json('data.countdowns');
-        expect($countdowns)->toHaveCount(1);
-        expect($countdowns[0]['name'])->toBe('Birthday');
+        expect($countdowns)->toHaveKey('2026-03-11');
+        expect($countdowns['2026-03-11'])->toHaveCount(1);
+        expect($countdowns['2026-03-11'][0]['name'])->toBe('Birthday');
     });
 
     it('rejects range exceeding 7 days', function () {
