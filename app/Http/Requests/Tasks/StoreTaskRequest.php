@@ -25,6 +25,7 @@ class StoreTaskRequest extends FormRequest
             'date' => ['sometimes', 'nullable', 'date'],
             'start_time' => ['sometimes', 'nullable', 'date_format:H:i'],
             'end_time' => ['sometimes', 'nullable', 'date_format:H:i'],
+            'color' => ['sometimes', 'nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ];
     }
 

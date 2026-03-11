@@ -43,6 +43,7 @@ class UpdatePlanRequest extends FormRequest
             ],
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'color' => ['sometimes', 'nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'is_active' => ['sometimes', 'boolean'],
             'tasks' => ['required', 'array', 'min:1'],
             'tasks.*.id' => ['sometimes', 'nullable', 'integer'],

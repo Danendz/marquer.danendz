@@ -33,6 +33,7 @@ readonly class PlanService
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'] ?? null,
                 'is_active' => true,
+                'color' => $data['color'] ?? null,
             ]);
 
             foreach ($data['tasks'] as $taskData) {
@@ -57,6 +58,7 @@ readonly class PlanService
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'] ?? null,
                 'is_active' => $data['is_active'] ?? $plan->is_active,
+                'color' => $data['color'] ?? $plan->color,
             ]);
 
             $incomingTasks = $data['tasks'] ?? [];

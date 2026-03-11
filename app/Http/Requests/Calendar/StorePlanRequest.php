@@ -43,6 +43,7 @@ class StorePlanRequest extends FormRequest
             ],
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'color' => ['sometimes', 'nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'tasks' => ['required', 'array', 'min:1'],
             'tasks.*.name' => ['required', 'string', 'max:255'],
             'tasks.*.sort_order' => ['required', 'integer'],

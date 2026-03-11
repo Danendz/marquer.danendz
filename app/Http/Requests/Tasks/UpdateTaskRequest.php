@@ -24,6 +24,7 @@ class UpdateTaskRequest extends FormRequest
             'date' => ['sometimes', 'nullable', 'date'],
             'start_time' => ['sometimes', 'nullable', 'date_format:H:i'],
             'end_time' => ['sometimes', 'nullable', 'date_format:H:i', 'after_or_equal:start_time'],
+            'color' => ['sometimes', 'nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ];
     }
 

@@ -69,6 +69,7 @@ describe('CalendarWeekController', function () {
         expect($mon['is_completed'])->toBeTrue();
         expect($tue['is_completed'])->toBeFalse();
         expect($mon['plan_id'])->toBe($plan->id);
+        expect($mon['plan_name'])->toBe($plan->name);
     });
 
     it('includes start_time and end_time on plan tasks', function () {

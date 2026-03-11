@@ -18,6 +18,7 @@ class Task extends Model
         'date',
         'start_time',
         'end_time',
+        'color',
         'user_id',
     ];
 

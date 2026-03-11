@@ -14,6 +14,7 @@ class PlanForDateResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'color' => $this->color,
             'tasks' => $this->tasks->map(fn ($task) => [
                 'id' => $task->id,
                 'name' => $task->name,

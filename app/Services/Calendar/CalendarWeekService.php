@@ -85,6 +85,8 @@ readonly class CalendarWeekService
                         'end_time' => $task->end_time,
                         'is_completed' => $isCompleted,
                         'plan_id' => $plan->id,
+                        'plan_name' => $plan->name,
+                        'plan_color' => $plan->color,
                     ];
                 }
             }
