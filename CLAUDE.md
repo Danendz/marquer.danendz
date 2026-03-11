@@ -17,6 +17,21 @@ composer test    # run tests
 
 Always run `./vendor/bin/sail test` before committing. Do not commit if tests fail.
 
+**Before running any tests**, always restart Sail with a clean state:
+```bash
+./vendor/bin/sail down --remove-orphans && ./vendor/bin/sail up -d
+```
+
+## Sail Troubleshooting
+
+If tests fail in unexpected ways or code changes aren't picked up, Sail may be stale. Always do a clean restart before debugging:
+
+```bash
+./vendor/bin/sail down --remove-orphans && ./vendor/bin/sail up -d
+```
+
+Only start debugging the actual failure after confirming Sail is running fresh code.
+
 ## Architecture
 
 `Controller → FormRequest → Service → Model → DB`

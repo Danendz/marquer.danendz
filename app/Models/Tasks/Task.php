@@ -15,6 +15,10 @@ class Task extends Model
         'task_category_id',
         'name',
         'status',
+        'date',
+        'start_time',
+        'end_time',
+        'color',
         'user_id',
     ];
 
@@ -24,6 +28,7 @@ class Task extends Model
 
     protected $casts = [
         'status' => TaskStatus::class,
+        'date' => 'date',
     ];
 
     /**

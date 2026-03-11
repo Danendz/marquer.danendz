@@ -10,15 +10,22 @@ class StoreTaskRequest extends FormRequest
     /**
      * Get the validation rules for storing a task.
      *
-     * @return array An associative array of validation rules:
-     *               - `name`: required, string, maximum length 255.
-     *               - `task_category_id`: required, integer, and must reference an existing `task_categories.id` that belongs to the authenticated user.
+     * @return array Validation rules:
+     *               - `name`: required, string, max 255.
+     *               - `task_category_id`: optional (sometimes), nullable, integer, must reference an existing task_categories.id belonging to the authenticated user.
+     *               - `date`: optional (sometimes), nullable, valid date.
+     *               - `start_time`: optional (sometimes), nullable, format H:i.
+     *               - `end_time`: optional (sometimes), nullable, format H:i.
      */
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'task_category_id' => ['sometimes', 'nullable', 'integer', Rule::exists('task_categories', 'id')->where('user_id', $this->user()->id)]
+            'task_category_id' => ['sometimes', 'nullable', 'integer', Rule::exists('task_categories', 'id')->where('user_id', $this->user()->id)],
+            'date' => ['sometimes', 'nullable', 'date'],
+            'start_time' => ['sometimes', 'nullable', 'date_format:H:i'],
+            'end_time' => ['sometimes', 'nullable', 'date_format:H:i', 'after_or_equal:start_time'],
+            'color' => ['sometimes', 'nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ];
     }
 

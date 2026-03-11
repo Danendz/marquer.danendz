@@ -38,6 +38,10 @@ readonly class TaskService
             $query->where('status', $data['status']);
         }
 
+        if (!empty($data['date'])) {
+            $query->whereDate('date', $data['date']);
+        }
+
         return $query->orderBy('created_at', 'desc')->get();
     }
 
