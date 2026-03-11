@@ -52,6 +52,8 @@ readonly class PlanService
     public function update(Plan $plan, array $data): Plan
     {
         return DB::transaction(function () use ($plan, $data) {
+            $plan = Plan::where('id', $plan->id)->lockForUpdate()->firstOrFail();
+
             $plan->update([
                 'name' => $data['name'],
                 'schedule' => $data['schedule'],
@@ -64,7 +66,7 @@ readonly class PlanService
             $incomingTasks = $data['tasks'] ?? [];
             $incomingIds = collect($incomingTasks)->pluck('id')->filter()->all();
 
-            $existingIds = $plan->tasks()->pluck('id')->all();
+            $existingIds = $plan->tasks()->lockForUpdate()->pluck('id')->all();
             $unknownIds = array_diff($incomingIds, $existingIds);
             if (!empty($unknownIds)) {
                 abort(422, 'Some task IDs do not belong to this plan.');
@@ -105,6 +107,10 @@ readonly class PlanService
 
         return Plan::where('user_id', $userId)
             ->where('is_active', true)
+            ->whereDate('start_date', '<=', $date)
+            ->where(function ($q) use ($date) {
+                $q->whereNull('end_date')->orWhereDate('end_date', '>=', $date);
+            })
             ->with(['tasks' => function ($q) use ($date) {
                 $q->orderBy('sort_order')
                     ->with(['completions' => function ($q) use ($date) {
