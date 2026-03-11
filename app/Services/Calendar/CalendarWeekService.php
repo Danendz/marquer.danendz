@@ -32,6 +32,8 @@ readonly class CalendarWeekService
         // Plan tasks grouped by date
         $plans = Plan::where('user_id', $userId)
             ->where('is_active', true)
+            ->where('start_date', '<=', $toDate)
+            ->where(fn ($q) => $q->whereNull('end_date')->orWhere('end_date', '>=', $fromDate))
             ->with(['tasks'])
             ->get();
 

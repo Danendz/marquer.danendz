@@ -18,8 +18,8 @@ class CalendarWeekController extends Controller
     public function __invoke(CalendarWeekRequest $request): JsonResponse
     {
         $userId = auth()->id();
-        $from = Carbon::parse($request->input('from'))->startOfDay();
-        $to = Carbon::parse($request->input('to'))->endOfDay();
+        $from = Carbon::parse($request->validated('from'))->startOfDay();
+        $to = Carbon::parse($request->validated('to'))->endOfDay();
 
         return ApiResponse::success($this->service->assembleWeekView($userId, $from, $to));
     }

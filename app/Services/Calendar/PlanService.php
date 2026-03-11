@@ -58,7 +58,7 @@ readonly class PlanService
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'] ?? null,
                 'is_active' => $data['is_active'] ?? $plan->is_active,
-                'color' => $data['color'] ?? $plan->color,
+                'color' => array_key_exists('color', $data) ? $data['color'] : $plan->color,
             ]);
 
             $incomingTasks = $data['tasks'] ?? [];
@@ -126,9 +126,10 @@ readonly class PlanService
     public function toggleTaskCompletion(PlanTask $planTask, string $date): bool
     {
         return DB::transaction(function () use ($planTask, $date) {
+            PlanTask::where('id', $planTask->id)->lockForUpdate()->first();
+
             $existing = PlanTaskCompletion::where('plan_task_id', $planTask->id)
                 ->where('completed_date', $date)
-                ->lockForUpdate()
                 ->first();
 
             if ($existing) {
