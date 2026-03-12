@@ -47,6 +47,7 @@ test('creates countdown with valid data', function () {
     $response = $this->postJson('/api/marquer/calendar/countdowns', [
         'name' => 'My Exam',
         'target_date' => now()->addDays(30)->toDateString(),
+        'bg_image' => 'IMG_1157.webp',
     ]);
 
     $response->assertOk()
@@ -57,19 +58,25 @@ test('creates countdown with valid data', function () {
     $this->assertDatabaseHas('countdowns', ['name' => 'My Exam', 'user_id' => 1]);
 });
 
-test('assigns a bg_image from the predefined set on create', function () {
-    $validImages = array_map(
-        fn ($n) => "IMG_{$n}.webp",
-        range(1157, 1175)
-    );
+test('stores the bg_image sent by the client on create', function () {
+    $response = $this->postJson('/api/marquer/calendar/countdowns', [
+        'name' => 'Test',
+        'target_date' => now()->addDays(10)->toDateString(),
+        'bg_image' => 'IMG_1320.webp',
+    ]);
 
+    $response->assertJsonPath('data.bg_image', 'IMG_1320.webp');
+    $this->assertDatabaseHas('countdowns', ['name' => 'Test', 'bg_image' => 'IMG_1320.webp']);
+});
+
+test('validates bg_image is required on create', function () {
     $response = $this->postJson('/api/marquer/calendar/countdowns', [
         'name' => 'Test',
         'target_date' => now()->addDays(10)->toDateString(),
     ]);
 
-    $bgImage = $response->json('data.bg_image');
-    expect($bgImage)->toBeIn($validImages);
+    $response->assertUnprocessable()->assertJsonStructure(['data' => ['bg_image']]);
+    $this->assertDatabaseMissing('countdowns', ['name' => 'Test']);
 });
 
 test('validates name is required on create', function () {
