@@ -16,7 +16,7 @@ class StoreCountdownRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'target_date' => ['required', 'date', 'after:today'],
-            'bg_image' => ['required', 'string', 'max:255'],
+            'bg_image' => ['required', 'string', 'regex:/^IMG_\d+\.webp$/'],
         ];
     }
 }

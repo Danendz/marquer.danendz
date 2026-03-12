@@ -69,6 +69,16 @@ test('stores the bg_image sent by the client on create', function () {
     $this->assertDatabaseHas('countdowns', ['name' => 'Test', 'bg_image' => 'IMG_1320.webp']);
 });
 
+test('validates bg_image is required on create', function () {
+    $response = $this->postJson('/api/marquer/calendar/countdowns', [
+        'name' => 'Test',
+        'target_date' => now()->addDays(10)->toDateString(),
+    ]);
+
+    $response->assertUnprocessable()->assertJsonStructure(['data' => ['bg_image']]);
+    $this->assertDatabaseMissing('countdowns', ['name' => 'Test']);
+});
+
 test('validates name is required on create', function () {
     $response = $this->postJson('/api/marquer/calendar/countdowns', [
         'target_date' => now()->addDays(10)->toDateString(),
