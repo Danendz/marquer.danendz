@@ -62,26 +62,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Before Send
-    |--------------------------------------------------------------------------
-    |
-    | Scrub sensitive data before sending to GlitchTip.
-    | Strip query params from URLs, clear headers and request body.
-    |
-    */
-    'before_send' => function (\Sentry\Event $event, ?\Sentry\EventHint $hint): ?\Sentry\Event {
-        $request = $event->getRequest();
-        if (is_array($request) && !empty($request['url'])) {
-            $request['url'] = strtok($request['url'], '?') ?: $request['url'];
-            $request['headers'] = [];
-            $request['data'] = null;
-            $event->setRequest($request);
-        }
-        return $event;
-    },
-
-    /*
-    |--------------------------------------------------------------------------
     | Breadcrumbs
     |--------------------------------------------------------------------------
     */
