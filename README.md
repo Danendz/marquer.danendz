@@ -41,7 +41,8 @@ Controller → FormRequest → Service → Model → DB
 | Plans | `GET/POST /calendar/plans`, `GET/PUT/DELETE /calendar/plans/{id}`, `GET /calendar/plans/for-date` |
 | Plan tasks | `POST /calendar/plan-tasks/{id}/toggle` |
 | Study subjects | `GET/POST /study/subjects`, `PUT/DELETE /study/subjects/{id}` |
-| Study sessions | `GET/POST /study/sessions`, `PUT /study/sessions/{id}`, `POST /study/sessions/{id}/complete|cancel`, `GET /study/sessions/stats` |
+| Study sessions | `GET/POST /study/sessions`, `GET /study/sessions/stats`, `PUT /study/sessions/{id}` |
+| | `POST /study/sessions/{id}/complete`, `POST /study/sessions/{id}/cancel` |
 | Study settings | `GET/PUT /study/settings` |
 
 **Public:**
