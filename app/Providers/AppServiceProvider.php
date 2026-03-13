@@ -5,7 +5,9 @@ namespace App\Providers;
 use App\Auth\JwtStatelessGuard;
 use App\Services\RabbitPublisherService;
 use App\Services\S3ClientService;
+use App\Support\SentryBeforeSend;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(RabbitPublisherService::class);
         $this->app->singleton(S3ClientService::class);
+
+        Config::set('sentry.before_send', new SentryBeforeSend());
     }
 
     /**
