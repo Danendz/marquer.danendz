@@ -9,6 +9,7 @@ use App\Support\SentryBeforeSend;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
+use Sentry\SentrySdk;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,5 +35,10 @@ class AppServiceProvider extends ServiceProvider
         Auth::extend('jwt_stateless', static function ($app, string $name, array $config) {
             return new JwtStatelessGuard($app['request']);
         });
+
+        $client = SentrySdk::getCurrentHub()->getClient();
+        if ($client !== null) {
+            $client->getOptions()->setBeforeSendCallback(new SentryBeforeSend());
+        }
     }
 }
