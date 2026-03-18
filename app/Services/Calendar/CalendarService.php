@@ -2,34 +2,71 @@
 
 namespace App\Services\Calendar;
 
-use App\Http\Resources\Calendar\CountdownResource;
-use App\Http\Resources\Tasks\TaskResource;
+use App\Enums\TaskStatus;
 use App\Models\Calendar\Plan;
 use App\Models\Calendar\PlanTaskCompletion;
 use App\Models\Countdown;
 use App\Models\Tasks\Task;
 use Carbon\Carbon;
 
-readonly class CalendarWeekService
+readonly class CalendarService
 {
     public function __construct(
         private PlanScheduleService $scheduleService,
     ) {}
 
-    public function assembleWeekView(int $userId, Carbon $from, Carbon $to): array
+    public function getOverview(int $userId, Carbon $from, Carbon $to): array
     {
         $fromDate = $from->toDateString();
         $toDate = $to->toDateString();
 
-        // Tasks grouped by date
+        $tasks = Task::where('user_id', $userId)
+            ->whereBetween('date', [$fromDate, $toDate])
+            ->whereNotIn('status', [TaskStatus::Done->value, TaskStatus::Cancelled->value])
+            ->pluck('date')
+            ->map(fn ($date) => $date->toDateString())
+            ->unique()
+            ->values();
+
+        $planTasks = Plan::where('user_id', $userId)
+            ->where('is_active', true)
+            ->get()
+            ->flatMap(fn (Plan $plan) => $this->scheduleService->getMatchingDatesInRange($plan, $from, $to))
+            ->unique()
+            ->values();
+
+        return [
+            'tasks' => $tasks,
+            'plan_tasks' => $planTasks,
+        ];
+    }
+
+    public function getWeekView(int $userId, Carbon $from, Carbon $to): array
+    {
+        $fromDate = $from->toDateString();
+        $toDate = $to->toDateString();
+
         $tasks = Task::where('user_id', $userId)
             ->whereBetween('date', [$fromDate, $toDate])
             ->get()
-            ->groupBy(fn ($task) => $task->date->toDateString())
-            ->map(fn ($group) => TaskResource::collection($group)->resolve())
-            ->toArray();
+            ->groupBy(fn ($task) => $task->date->toDateString());
 
-        // Plan tasks grouped by date
+        $planTasks = $this->getPlanTasksForRange($userId, $fromDate, $toDate, $from, $to);
+
+        $countdowns = Countdown::where('user_id', $userId)
+            ->whereBetween('target_date', [$fromDate, $toDate])
+            ->get()
+            ->groupBy(fn ($c) => $c->target_date->toDateString());
+
+        return [
+            'tasks' => $tasks,
+            'plan_tasks' => $planTasks,
+            'countdowns' => $countdowns,
+        ];
+    }
+
+    private function getPlanTasksForRange(int $userId, string $fromDate, string $toDate, Carbon $from, Carbon $to): array
+    {
         $plans = Plan::where('user_id', $userId)
             ->where('is_active', true)
             ->where('start_date', '<=', $toDate)
@@ -37,10 +74,9 @@ readonly class CalendarWeekService
             ->with(['tasks'])
             ->get();
 
-        // Collect all task IDs and matching dates from all plans first
         $allTaskIds = [];
         $allMatchingDates = [];
-        $planMatchingDates = []; // plan->id => array of date strings
+        $planMatchingDates = [];
 
         foreach ($plans as $plan) {
             $matchingDates = $this->scheduleService->getMatchingDatesInRange($plan, $from, $to);
@@ -52,7 +88,6 @@ readonly class CalendarWeekService
             $allMatchingDates = array_merge($allMatchingDates, $matchingDates);
         }
 
-        // Single query for all completions
         $completionsByTaskId = collect();
         if (!empty($allTaskIds)) {
             $completionsByTaskId = PlanTaskCompletion::whereIn('plan_task_id', array_unique($allTaskIds))
@@ -61,7 +96,6 @@ readonly class CalendarWeekService
                 ->groupBy('plan_task_id');
         }
 
-        // Build $planTasks using $planMatchingDates and $completionsByTaskId
         $planTasks = [];
         foreach ($plans as $plan) {
             if (!isset($planMatchingDates[$plan->id])) {
@@ -94,18 +128,6 @@ readonly class CalendarWeekService
             }
         }
 
-        // Countdowns grouped by date
-        $countdowns = Countdown::where('user_id', $userId)
-            ->whereBetween('target_date', [$fromDate, $toDate])
-            ->get()
-            ->groupBy(fn ($c) => $c->target_date->toDateString())
-            ->map(fn ($group) => CountdownResource::collection($group)->resolve())
-            ->toArray();
-
-        return [
-            'tasks' => $tasks,
-            'plan_tasks' => $planTasks,
-            'countdowns' => $countdowns,
-        ];
+        return $planTasks;
     }
 }

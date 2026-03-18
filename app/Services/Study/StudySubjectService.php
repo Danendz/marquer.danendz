@@ -3,13 +3,15 @@
 namespace App\Services\Study;
 
 use App\Models\Study\StudySubject;
+use App\Services\Concerns\PublishesAnalytics;
 use App\Services\RabbitPublisherService;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 readonly class StudySubjectService
 {
+    use PublishesAnalytics;
+
     public function __construct(
         private RabbitPublisherService $publisher
     ) {
@@ -24,17 +26,8 @@ readonly class StudySubjectService
 
     public function create(int $userId, array $data): StudySubject
     {
-        return DB::transaction(function () use ($userId, $data) {
-            $subject = StudySubject::create([...$data, 'user_id' => $userId]);
-
-            DB::afterCommit(function () use ($subject) {
-                $this->publisher->publishAnalyticsSafely('study.subject_created', [
-                    'event_name' => 'study_subject_created',
-                    'properties' => ['study_subject_id' => $subject->id],
-                ]);
-            });
-
-            return $subject;
+        return $this->withAnalytics('study.subject_created', 'study_subject_created', 'study_subject_id', function () use ($userId, $data) {
+            return StudySubject::create([...$data, 'user_id' => $userId]);
         });
     }
 
@@ -44,16 +37,8 @@ readonly class StudySubjectService
             throw new HttpException(403, 'Cannot modify system subjects.');
         }
 
-        return DB::transaction(function () use ($subject, $data) {
+        return $this->withAnalytics('study.subject_updated', 'study_subject_updated', 'study_subject_id', function () use ($subject, $data) {
             $subject->update($data);
-
-            DB::afterCommit(function () use ($subject) {
-                $this->publisher->publishAnalyticsSafely('study.subject_updated', [
-                    'event_name' => 'study_subject_updated',
-                    'properties' => ['study_subject_id' => $subject->id],
-                ]);
-            });
-
             return $subject;
         });
     }
@@ -64,15 +49,6 @@ readonly class StudySubjectService
             throw new HttpException(403, 'Cannot delete system subjects.');
         }
 
-        DB::transaction(function () use ($subject) {
-            $subject->delete();
-
-            DB::afterCommit(function () use ($subject) {
-                $this->publisher->publishAnalyticsSafely('study.subject_deleted', [
-                    'event_name' => 'study_subject_deleted',
-                    'properties' => ['study_subject_id' => $subject->id],
-                ]);
-            });
-        });
+        $this->deleteWithAnalytics($subject, 'study.subject_deleted', 'study_subject_deleted', 'study_subject_id');
     }
 }

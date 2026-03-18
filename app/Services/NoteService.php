@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Models\Note;
+use App\Services\Concerns\PublishesAnalytics;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 readonly class NoteService
 {
+    use PublishesAnalytics;
+
     public function __construct(private RabbitPublisherService $publisher)
     {
     }
@@ -31,71 +33,23 @@ readonly class NoteService
         ]);
     }
 
-    /**
-     * Create a new Note belonging to the given user.
-     *
-     * @param int $userId The ID of the user who will own the note.
-     * @param array $data Attributes for the new note.
-     * @return Note The newly created Note model.
-     * @throws \Throwable
-     */
     public function create(int $userId, array $data): Note
     {
-        return DB::transaction(function () use ($data, $userId) {
-            $note = Note::create([
-                ...$data,
-                'user_id' => $userId
-            ]);
-
-            DB::afterCommit(function () use ($note) {
-                $this->publisher->publishAnalyticsSafely('note.created', [
-                    'event_name' => 'note_created',
-                    'properties' => ['note_id' => $note->id]
-                ]);
-            });
-
-            return $note;
+        return $this->withAnalytics('note.created', 'note_created', 'note_id', function () use ($data, $userId) {
+            return Note::create([...$data, 'user_id' => $userId]);
         });
     }
 
-    /**
-     * Update a Note model with the given attributes.
-     *
-     * @param Note $note The Note model to update.
-     * @param array $data Attributes to set on the Note.
-     * @return Note The updated Note model.
-     */
     public function update(Note $note, array $data): Note
     {
-        return DB::transaction(function () use ($data, $note) {
+        return $this->withAnalytics('note.updated', 'note_updated', 'note_id', function () use ($data, $note) {
             $note->update($data);
-
-            DB::afterCommit(function () use ($note) {
-                $this->publisher->publishAnalyticsSafely('note.updated', [
-                    'event_name' => 'note_updated',
-                    'properties' => ['note_id' => $note->id]
-                ]);
-            });
-
             return $note;
         });
     }
 
-    /**
-     * Deletes the given Note model from persistent storage.
-     *
-     * @param Note $note The Note model to delete.
-     */
     public function delete(Note $note): void
     {
-        DB::transaction(function () use ($note) {
-            $note->delete();
-            DB::afterCommit(function () use ($note) {
-                $this->publisher->publishAnalyticsSafely('note.deleted', [
-                    'event_name' => 'note_deleted',
-                    'properties' => ['note_id' => $note->id]
-                ]);
-            });
-        });
+        $this->deleteWithAnalytics($note, 'note.deleted', 'note_deleted', 'note_id');
     }
 }

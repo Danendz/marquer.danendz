@@ -5,14 +5,14 @@ namespace App\Http\Controllers\Private\Calendar;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Calendar\CalendarOverviewRequest;
 use App\Http\Resources\ApiResponse;
-use App\Services\Calendar\CalendarOverviewService;
+use App\Services\Calendar\CalendarService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
 class CalendarOverviewController extends Controller
 {
     public function __construct(
-        private CalendarOverviewService $service,
+        private CalendarService $service,
     ) {}
 
     public function __invoke(CalendarOverviewRequest $request): JsonResponse
