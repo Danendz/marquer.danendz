@@ -32,7 +32,7 @@ describe('CalendarOverviewController', function () {
         $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
 
         $response->assertOk();
-        expect($response->json('data.tasks'))->toBeEmpty();
+        expect($response->json('data.tasks'))->toBeArray()->toBeEmpty();
     });
 
     it('returns dates with active plans', function () {
@@ -67,7 +67,7 @@ describe('CalendarOverviewController', function () {
         $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
 
         $response->assertOk();
-        expect($response->json('data.plan_tasks'))->toBeEmpty();
+        expect($response->json('data.plan_tasks'))->toBeArray()->toBeEmpty();
     });
 
     it('returns plan_tasks for weekly schedule', function () {
@@ -104,8 +104,8 @@ describe('CalendarOverviewController', function () {
         $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
 
         $response->assertOk();
-        expect($response->json('data.tasks'))->toBeEmpty();
-        expect($response->json('data.plan_tasks'))->toBeEmpty();
+        expect($response->json('data.tasks'))->toBeArray()->toBeEmpty();
+        expect($response->json('data.plan_tasks'))->toBeArray()->toBeEmpty();
     });
 
     it('requires from and to params', function () {

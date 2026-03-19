@@ -28,14 +28,16 @@ trait PublishesAnalytics
         $modelId = $model->id;
 
         DB::transaction(function () use ($model, $routingKey, $eventName, $idKey, $modelId) {
-            $model->delete();
+            $deleted = $model->delete();
 
-            DB::afterCommit(function () use ($routingKey, $eventName, $idKey, $modelId) {
-                $this->publisher->publishAnalyticsSafely($routingKey, [
-                    'event_name' => $eventName,
-                    'properties' => [$idKey => $modelId],
-                ]);
-            });
+            if ($deleted) {
+                DB::afterCommit(function () use ($routingKey, $eventName, $idKey, $modelId) {
+                    $this->publisher->publishAnalyticsSafely($routingKey, [
+                        'event_name' => $eventName,
+                        'properties' => [$idKey => $modelId],
+                    ]);
+                });
+            }
         });
     }
 }

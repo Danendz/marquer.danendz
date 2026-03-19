@@ -30,6 +30,8 @@ readonly class CalendarService
 
         $planTasks = Plan::where('user_id', $userId)
             ->where('is_active', true)
+            ->where('start_date', '<=', $toDate)
+            ->where(fn ($q) => $q->whereNull('end_date')->orWhere('end_date', '>=', $fromDate))
             ->get()
             ->flatMap(fn (Plan $plan) => $this->scheduleService->getMatchingDatesInRange($plan, $from, $to))
             ->unique()
