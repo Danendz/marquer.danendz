@@ -108,6 +108,53 @@ describe('CalendarOverviewController', function () {
         expect($response->json('data.plan_tasks'))->toBeArray()->toBeEmpty();
     });
 
+    it('includes task on exact boundary dates', function () {
+        Task::create(['user_id' => 1, 'name' => 'On From', 'status' => 'draft', 'date' => '2026-03-09']);
+        Task::create(['user_id' => 1, 'name' => 'On To', 'status' => 'draft', 'date' => '2026-03-15']);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        $tasks = $response->json('data.tasks');
+        expect($tasks)->toContain('2026-03-09')->toContain('2026-03-15');
+    });
+
+    it('includes plan whose start_date falls inside range', function () {
+        Plan::create([
+            'user_id' => 1,
+            'name' => 'Starts Mid-Range',
+            'schedule' => ['type' => 'daily'],
+            'start_date' => '2026-03-12',
+            'end_date' => null,
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        $planTasks = $response->json('data.plan_tasks');
+        expect($planTasks)->toContain('2026-03-12')->toContain('2026-03-15')
+            ->not->toContain('2026-03-11');
+    });
+
+    it('includes plan whose end_date falls inside range', function () {
+        Plan::create([
+            'user_id' => 1,
+            'name' => 'Ends Mid-Range',
+            'schedule' => ['type' => 'daily'],
+            'start_date' => '2026-03-01',
+            'end_date' => '2026-03-11',
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        $planTasks = $response->json('data.plan_tasks');
+        expect($planTasks)->toContain('2026-03-09')->toContain('2026-03-11')
+            ->not->toContain('2026-03-12');
+    });
+
     it('requires from and to params', function () {
         $this->getJson('/api/marquer/calendar/overview')->assertUnprocessable();
     });
