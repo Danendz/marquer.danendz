@@ -10,10 +10,10 @@ beforeEach(function () {
 
 describe('CalendarOverviewController', function () {
     it('returns dates with incomplete tasks', function () {
-        Task::create(['user_id' => 1, 'name' => 'Draft', 'status' => 'draft', 'date' => '2026-03-09']);
-        Task::create(['user_id' => 1, 'name' => 'InProgress', 'status' => 'progress', 'date' => '2026-03-10']);
-        Task::create(['user_id' => 1, 'name' => 'Done', 'status' => 'done', 'date' => '2026-03-11']);
-        Task::create(['user_id' => 1, 'name' => 'Cancelled', 'status' => 'cancelled', 'date' => '2026-03-12']);
+        Task::create(['user_id' => 1, 'name' => 'Draft', 'status' => TaskStatus::Draft, 'date' => '2026-03-09']);
+        Task::create(['user_id' => 1, 'name' => 'InProgress', 'status' => TaskStatus::Progress, 'date' => '2026-03-10']);
+        Task::create(['user_id' => 1, 'name' => 'Done', 'status' => TaskStatus::Done, 'date' => '2026-03-11']);
+        Task::create(['user_id' => 1, 'name' => 'Cancelled', 'status' => TaskStatus::Cancelled, 'date' => '2026-03-12']);
 
         $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
 
@@ -26,8 +26,8 @@ describe('CalendarOverviewController', function () {
     });
 
     it('returns empty tasks when all are done or cancelled', function () {
-        Task::create(['user_id' => 1, 'name' => 'Done', 'status' => 'done', 'date' => '2026-03-09']);
-        Task::create(['user_id' => 1, 'name' => 'Cancelled', 'status' => 'cancelled', 'date' => '2026-03-10']);
+        Task::create(['user_id' => 1, 'name' => 'Done', 'status' => TaskStatus::Done, 'date' => '2026-03-09']);
+        Task::create(['user_id' => 1, 'name' => 'Cancelled', 'status' => TaskStatus::Cancelled, 'date' => '2026-03-10']);
 
         $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
 
@@ -91,7 +91,7 @@ describe('CalendarOverviewController', function () {
     });
 
     it('does not include other users data', function () {
-        Task::create(['user_id' => 2, 'name' => 'Other', 'status' => 'draft', 'date' => '2026-03-09']);
+        Task::create(['user_id' => 2, 'name' => 'Other', 'status' => TaskStatus::Draft, 'date' => '2026-03-09']);
         Plan::create([
             'user_id' => 2,
             'name' => 'Other Plan',
@@ -109,8 +109,8 @@ describe('CalendarOverviewController', function () {
     });
 
     it('includes task on exact boundary dates', function () {
-        Task::create(['user_id' => 1, 'name' => 'On From', 'status' => 'draft', 'date' => '2026-03-09']);
-        Task::create(['user_id' => 1, 'name' => 'On To', 'status' => 'draft', 'date' => '2026-03-15']);
+        Task::create(['user_id' => 1, 'name' => 'On From', 'status' => TaskStatus::Draft, 'date' => '2026-03-09']);
+        Task::create(['user_id' => 1, 'name' => 'On To', 'status' => TaskStatus::Draft, 'date' => '2026-03-15']);
 
         $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
 
