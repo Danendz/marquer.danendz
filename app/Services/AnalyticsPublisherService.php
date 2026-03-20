@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
+use App\Jobs\PublishAnalyticsEvent;
 use Illuminate\Support\Str;
 
 class AnalyticsPublisherService
@@ -21,15 +21,10 @@ class AnalyticsPublisherService
             'properties' => $properties,
         ];
 
-        $url = config('analytics.url');
-        $timeout = config('analytics.timeout');
-
-        dispatch(function () use ($url, $timeout, $payload) {
-            try {
-                Http::timeout($timeout)->post($url, $payload);
-            } catch (\Throwable $e) {
-                report($e);
-            }
-        })->afterResponse();
+        PublishAnalyticsEvent::dispatch(
+            config('analytics.url'),
+            config('analytics.timeout'),
+            $payload,
+        );
     }
 }

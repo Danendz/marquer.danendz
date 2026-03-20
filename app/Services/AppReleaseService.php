@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AppRelease;
+use Illuminate\Support\Facades\DB;
 
 readonly class AppReleaseService
 {
@@ -15,6 +16,46 @@ readonly class AppReleaseService
         ];
     }
 
+    public function ingest(array $data): AppRelease
+    {
+        $buildNumber = null;
+        if (!empty($data['build_number']) && ctype_digit($data['build_number'])) {
+            $buildNumber = (int) $data['build_number'];
+        }
+
+        $attributes = [
+            'build_number' => $buildNumber,
+            'version_full' => $data['version_full'] ?? null,
+            'git_sha' => $data['git_sha'] ?? null,
+            'bucket' => $data['bucket'],
+            'object_key_latest' => $data['key_latest'],
+            'object_key_commit' => $data['key_commit'],
+            'released_at' => now(),
+        ];
+
+        if (!empty($data['changelog'])) {
+            $attributes['changelog'] = $data['changelog'];
+        }
+
+        return DB::transaction(function () use ($data, $attributes) {
+            $release = AppRelease::updateOrCreate(
+                ['platform' => $data['platform'], 'channel' => $data['channel'], 'version' => $data['version']],
+                $attributes
+            );
+
+            DB::afterCommit(function () use ($release) {
+                $this->publisher->publish('app_released', [
+                    'release_id' => $release->id,
+                    'platform' => $release->platform,
+                    'channel' => $release->channel,
+                    'version' => $release->version,
+                    'released_at' => $release->released_at,
+                ]);
+            });
+
+            return $release;
+        });
+    }
 
     private function getAppRelease(string $platform, string $channel): AppRelease
     {

@@ -110,6 +110,7 @@ AWS_ENDPOINT=                # MinIO endpoint
 
 ANALYTICS_ENABLED=false      # set to true to publish analytics events
 ANALYTICS_URL=http://localhost:3000/api/analytics/track
+ANALYTICS_TIMEOUT=3          # seconds (default: 3)
 ```
 
 ## Deployment
