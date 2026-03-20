@@ -18,10 +18,6 @@ class PublishAnalyticsEvent implements ShouldQueue
 
     public function handle(): void
     {
-        try {
-            Http::timeout($this->timeout)->post($this->url, $this->payload)->throw();
-        } catch (\Throwable $e) {
-            report($e);
-        }
+        Http::timeout($this->timeout)->post($this->url, $this->payload)->throw();
     }
 }
