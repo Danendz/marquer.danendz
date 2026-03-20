@@ -3,14 +3,14 @@
 namespace App\Services\Tasks;
 
 use App\Models\Tasks\TaskCategory;
+use App\Services\AnalyticsPublisherService;
 use App\Services\Concerns\PublishesAnalytics;
-use App\Services\RabbitPublisherService;
 
 readonly class TaskCategoryService
 {
     use PublishesAnalytics;
 
-    public function __construct(private RabbitPublisherService $publisher)
+    public function __construct(private AnalyticsPublisherService $publisher)
     {
     }
 
@@ -28,7 +28,7 @@ readonly class TaskCategoryService
 
     public function create(int $userId, array $data): TaskCategory
     {
-        return $this->withAnalytics('task.category_created', 'task_category_created', 'task_category_id', function () use ($data, $userId) {
+        return $this->withAnalytics('task_category_created', 'task_category_id', function () use ($data, $userId) {
             $taskCategory = TaskCategory::create([
                 ...$data,
                 'user_id' => $userId,
@@ -43,7 +43,7 @@ readonly class TaskCategoryService
 
     public function update(TaskCategory $taskCategory, array $data): TaskCategory
     {
-        return $this->withAnalytics('task.category_updated', 'task_category_updated', 'task_category_id', function () use ($data, $taskCategory) {
+        return $this->withAnalytics('task_category_updated', 'task_category_id', function () use ($data, $taskCategory) {
             $taskCategory->update($data);
 
             $taskCategory->loadCount('tasks');
@@ -54,6 +54,6 @@ readonly class TaskCategoryService
 
     public function delete(TaskCategory $taskCategory): void
     {
-        $this->deleteWithAnalytics($taskCategory, 'task.category_deleted', 'task_category_deleted', 'task_category_id');
+        $this->deleteWithAnalytics($taskCategory, 'task_category_deleted', 'task_category_id');
     }
 }

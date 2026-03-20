@@ -4,7 +4,7 @@ namespace App\Services\Study;
 
 use App\Enums\StudySessionStatus;
 use App\Models\Study\StudySession;
-use App\Services\RabbitPublisherService;
+use App\Services\AnalyticsPublisherService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -14,7 +14,7 @@ use Illuminate\Validation\ValidationException;
 readonly class StudySessionService
 {
     public function __construct(
-        private RabbitPublisherService $publisher
+        private AnalyticsPublisherService $publisher
     ) {
     }
 
@@ -68,13 +68,10 @@ readonly class StudySessionService
             }
 
             DB::afterCommit(function () use ($session) {
-                $this->publisher->publishAnalyticsSafely('study.session_started', [
-                    'event_name' => 'study_session_started',
-                    'properties' => [
-                        'study_session_id' => $session->id,
-                        'timer_mode' => $session->timer_mode->value,
-                        'study_subject_id' => $session->study_subject_id,
-                    ],
+                $this->publisher->publish('study_session_started', [
+                    'study_session_id' => $session->id,
+                    'timer_mode' => $session->timer_mode->value,
+                    'study_subject_id' => $session->study_subject_id,
                 ]);
             });
 
@@ -97,17 +94,13 @@ readonly class StudySessionService
 
             DB::afterCommit(function () use ($session, $oldStatus, $newStatus) {
                 if ($newStatus === StudySessionStatus::Paused && $oldStatus === StudySessionStatus::Active) {
-                    $this->publisher->publishAnalyticsSafely('study.session_paused', [
-                        'event_name' => 'study_session_paused',
-                        'properties' => [
-                            'study_session_id' => $session->id,
-                            'actual_duration_seconds' => $session->actual_duration_seconds,
-                        ],
+                    $this->publisher->publish('study_session_paused', [
+                        'study_session_id' => $session->id,
+                        'actual_duration_seconds' => $session->actual_duration_seconds,
                     ]);
                 } elseif ($newStatus === StudySessionStatus::Active && $oldStatus === StudySessionStatus::Paused) {
-                    $this->publisher->publishAnalyticsSafely('study.session_resumed', [
-                        'event_name' => 'study_session_resumed',
-                        'properties' => ['study_session_id' => $session->id],
+                    $this->publisher->publish('study_session_resumed', [
+                        'study_session_id' => $session->id,
                     ]);
                 }
             });
@@ -132,14 +125,11 @@ readonly class StudySessionService
             ]);
 
             DB::afterCommit(function () use ($session) {
-                $this->publisher->publishAnalyticsSafely('study.session_completed', [
-                    'event_name' => 'study_session_completed',
-                    'properties' => [
-                        'study_session_id' => $session->id,
-                        'actual_duration_seconds' => $session->actual_duration_seconds,
-                        'timer_mode' => $session->timer_mode->value,
-                        'study_subject_id' => $session->study_subject_id,
-                    ],
+                $this->publisher->publish('study_session_completed', [
+                    'study_session_id' => $session->id,
+                    'actual_duration_seconds' => $session->actual_duration_seconds,
+                    'timer_mode' => $session->timer_mode->value,
+                    'study_subject_id' => $session->study_subject_id,
                 ]);
             });
 
@@ -159,9 +149,8 @@ readonly class StudySessionService
             $session->update(['status' => StudySessionStatus::Cancelled, 'ended_at' => now()]);
 
             DB::afterCommit(function () use ($session) {
-                $this->publisher->publishAnalyticsSafely('study.session_cancelled', [
-                    'event_name' => 'study_session_cancelled',
-                    'properties' => ['study_session_id' => $session->id],
+                $this->publisher->publish('study_session_cancelled', [
+                    'study_session_id' => $session->id,
                 ]);
             });
 

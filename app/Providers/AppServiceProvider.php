@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Auth\JwtStatelessGuard;
-use App\Services\RabbitPublisherService;
+use App\Services\AnalyticsPublisherService;
 use App\Services\S3ClientService;
 use App\Support\SentryBeforeSend;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(RabbitPublisherService::class);
+        $this->app->singleton(AnalyticsPublisherService::class);
         $this->app->singleton(S3ClientService::class);
     }
 

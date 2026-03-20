@@ -3,13 +3,13 @@
 namespace App\Services\Study;
 
 use App\Models\Study\UserStudySettings;
-use App\Services\RabbitPublisherService;
+use App\Services\AnalyticsPublisherService;
 use Illuminate\Support\Facades\DB;
 
 readonly class UserStudySettingsService
 {
     public function __construct(
-        private RabbitPublisherService $publisher
+        private AnalyticsPublisherService $publisher
     ) {
     }
 
@@ -29,14 +29,11 @@ readonly class UserStudySettingsService
             $settings = UserStudySettings::updateOrCreate(['user_id' => $userId], $data);
 
             DB::afterCommit(function () use ($settings) {
-                $this->publisher->publishAnalyticsSafely('study.settings_updated', [
-                    'event_name' => 'study_settings_updated',
-                    'properties' => [
-                        'work_minutes' => $settings->default_work_minutes,
-                        'short_break_minutes' => $settings->default_short_break_minutes,
-                        'long_break_minutes' => $settings->default_long_break_minutes,
-                        'cycles' => $settings->default_cycles,
-                    ],
+                $this->publisher->publish('study_settings_updated', [
+                    'work_minutes' => $settings->default_work_minutes,
+                    'short_break_minutes' => $settings->default_short_break_minutes,
+                    'long_break_minutes' => $settings->default_long_break_minutes,
+                    'cycles' => $settings->default_cycles,
                 ]);
             });
 

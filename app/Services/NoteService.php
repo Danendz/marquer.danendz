@@ -10,7 +10,7 @@ readonly class NoteService
 {
     use PublishesAnalytics;
 
-    public function __construct(private RabbitPublisherService $publisher)
+    public function __construct(private AnalyticsPublisherService $publisher)
     {
     }
 
@@ -27,22 +27,19 @@ readonly class NoteService
 
     public function view(Note $note): void
     {
-        $this->publisher->publishAnalyticsSafely('note.watched', [
-            'event_name' => 'note_watched',
-            'properties' => ['note_id' => $note->id]
-        ]);
+        $this->publisher->publish('note_watched', ['note_id' => $note->id]);
     }
 
     public function create(int $userId, array $data): Note
     {
-        return $this->withAnalytics('note.created', 'note_created', 'note_id', function () use ($data, $userId) {
+        return $this->withAnalytics('note_created', 'note_id', function () use ($data, $userId) {
             return Note::create([...$data, 'user_id' => $userId]);
         });
     }
 
     public function update(Note $note, array $data): Note
     {
-        return $this->withAnalytics('note.updated', 'note_updated', 'note_id', function () use ($data, $note) {
+        return $this->withAnalytics('note_updated', 'note_id', function () use ($data, $note) {
             $note->update($data);
             return $note;
         });
@@ -50,6 +47,6 @@ readonly class NoteService
 
     public function delete(Note $note): void
     {
-        $this->deleteWithAnalytics($note, 'note.deleted', 'note_deleted', 'note_id');
+        $this->deleteWithAnalytics($note, 'note_deleted', 'note_id');
     }
 }

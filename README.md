@@ -10,7 +10,7 @@ Laravel 12 REST API for the Marquer service. Handles notes, tasks, study session
 | **Framework** | Laravel 12 |
 | **Database** | PostgreSQL 18 |
 | **File storage** | MinIO (S3-compatible) |
-| **Message broker** | RabbitMQ → Analytics service |
+| **Analytics** | HTTP POST → Analytics service |
 | **Auth** | JWT (shared secret with Auth service) |
 | **Testing** | Pest |
 
@@ -108,12 +108,9 @@ AWS_BUCKET=
 AWS_URL=
 AWS_ENDPOINT=                # MinIO endpoint
 
-RABBITMQ_ENABLED=false       # set to true to publish analytics events
-RABBITMQ_HOST=
-RABBITMQ_PORT=5672
-RABBITMQ_USER=
-RABBITMQ_PASSWORD=
-RABBITMQ_QUEUE=analytics
+ANALYTICS_ENABLED=false      # set to true to publish analytics events
+ANALYTICS_URL=http://localhost:3000/api/analytics/track
+ANALYTICS_TIMEOUT=3          # seconds (default: 3)
 ```
 
 ## Deployment
