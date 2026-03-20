@@ -3,12 +3,14 @@
 namespace App\Services\Tasks;
 
 use App\Models\Tasks\Task;
+use App\Services\Concerns\PublishesAnalytics;
 use App\Services\RabbitPublisherService;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 readonly class TaskService
 {
+    use PublishesAnalytics;
+
     public function __construct(
         private RabbitPublisherService $publisher
     )
@@ -45,77 +47,23 @@ readonly class TaskService
         return $query->orderBy('created_at', 'desc')->get();
     }
 
-    /**
-     * Create a new Task for the given user.
-     *
-     * @param int $userId ID of the user who will own the new task.
-     * @param array $data Associative array of task attributes; the `user_id` key will be set to `$userId`.
-     * @return Task The newly created Task instance.
-     */
     public function create(int $userId, array $data): Task
     {
-        return DB::transaction(function () use ($userId, $data) {
-            $task = Task::create([
-                ...$data,
-                'user_id' => $userId
-            ]);
-
-            DB::afterCommit(function () use ($task) {
-                $this->publisher->publishAnalyticsSafely('task.created', [
-                    'event_name' => 'task_created',
-                    'properties' => [
-                        'task_id' => $task->id
-                    ]
-                ]);
-            });
-
-            return $task;
+        return $this->withAnalytics('task.created', 'task_created', 'task_id', function () use ($userId, $data) {
+            return Task::create([...$data, 'user_id' => $userId]);
         });
     }
 
-    /**
-     * Update the given Task with the provided attributes.
-     *
-     * @param Task $task The Task model to update.
-     * @param array $data Associative array of attributes to apply to the task.
-     * @return Task The updated Task instance.
-     */
     public function update(Task $task, array $data): Task
     {
-        return DB::transaction(function () use ($task, $data) {
+        return $this->withAnalytics('task.updated', 'task_updated', 'task_id', function () use ($task, $data) {
             $task->update($data);
-
-            DB::afterCommit(function () use ($task) {
-                $this->publisher->publishAnalyticsSafely('task.updated', [
-                    'event_name' => 'task_updated',
-                    'properties' => [
-                        'task_id' => $task->id
-                    ]
-                ]);
-            });
-
             return $task;
         });
     }
 
-    /**
-     * Remove the given Task from persistent storage.
-     *
-     * @param Task $task The Task instance to delete.
-     */
     public function delete(Task $task): void
     {
-        DB::transaction(function () use ($task) {
-            $task->delete();
-
-            DB::afterCommit(function () use ($task) {
-                $this->publisher->publishAnalyticsSafely('task.deleted', [
-                    'event_name' => 'task_deleted',
-                    'properties' => [
-                        'task_id' => $task->id
-                    ]
-                ]);
-            });
-        });
+        $this->deleteWithAnalytics($task, 'task.deleted', 'task_deleted', 'task_id');
     }
 }

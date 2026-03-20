@@ -312,7 +312,7 @@ test('completions on different dates are independent', function () {
 // Overview includes plan dates
 // ---------------------------------------------------------------------------
 
-test('calendar overview includes dates_with_plans', function () {
+test('calendar overview includes plan_tasks', function () {
     makePlanWithTasks([
         'schedule' => ['type' => 'weekly', 'days' => [0]], // Mondays
         'start_date' => '2026-03-01',
@@ -320,8 +320,8 @@ test('calendar overview includes dates_with_plans', function () {
 
     $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
 
-    $response->assertOk()->assertJsonStructure(['data' => ['dates_with_incomplete', 'dates_with_plans']]);
-    $datesWithPlans = $response->json('data.dates_with_plans');
+    $response->assertOk()->assertJsonStructure(['data' => ['tasks', 'plan_tasks']]);
+    $datesWithPlans = $response->json('data.plan_tasks');
     expect($datesWithPlans)->toContain('2026-03-09'); // Monday
     expect($datesWithPlans)->not->toContain('2026-03-10'); // Tuesday
 });

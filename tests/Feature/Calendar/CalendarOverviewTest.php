@@ -1,0 +1,161 @@
+<?php
+
+use App\Enums\TaskStatus;
+use App\Models\Calendar\Plan;
+use App\Models\Tasks\Task;
+
+beforeEach(function () {
+    actingAsJwtUser();
+});
+
+describe('CalendarOverviewController', function () {
+    it('returns dates with incomplete tasks', function () {
+        Task::create(['user_id' => 1, 'name' => 'Draft', 'status' => TaskStatus::Draft, 'date' => '2026-03-09']);
+        Task::create(['user_id' => 1, 'name' => 'InProgress', 'status' => TaskStatus::Progress, 'date' => '2026-03-10']);
+        Task::create(['user_id' => 1, 'name' => 'Done', 'status' => TaskStatus::Done, 'date' => '2026-03-11']);
+        Task::create(['user_id' => 1, 'name' => 'Cancelled', 'status' => TaskStatus::Cancelled, 'date' => '2026-03-12']);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        $tasks = $response->json('data.tasks');
+        expect($tasks)->toContain('2026-03-09')
+            ->toContain('2026-03-10')
+            ->not->toContain('2026-03-11')
+            ->not->toContain('2026-03-12');
+    });
+
+    it('returns empty tasks when all are done or cancelled', function () {
+        Task::create(['user_id' => 1, 'name' => 'Done', 'status' => TaskStatus::Done, 'date' => '2026-03-09']);
+        Task::create(['user_id' => 1, 'name' => 'Cancelled', 'status' => TaskStatus::Cancelled, 'date' => '2026-03-10']);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        expect($response->json('data.tasks'))->toBeArray()->toBeEmpty();
+    });
+
+    it('returns dates with active plans', function () {
+        Plan::create([
+            'user_id' => 1,
+            'name' => 'Daily Plan',
+            'schedule' => ['type' => 'daily'],
+            'start_date' => '2026-03-01',
+            'end_date' => null,
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-11');
+
+        $response->assertOk();
+        $planTasks = $response->json('data.plan_tasks');
+        expect($planTasks)->toContain('2026-03-09')
+            ->toContain('2026-03-10')
+            ->toContain('2026-03-11');
+    });
+
+    it('does not include inactive plans', function () {
+        Plan::create([
+            'user_id' => 1,
+            'name' => 'Inactive',
+            'schedule' => ['type' => 'daily'],
+            'start_date' => '2026-03-01',
+            'end_date' => null,
+            'is_active' => false,
+        ]);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        expect($response->json('data.plan_tasks'))->toBeArray()->toBeEmpty();
+    });
+
+    it('returns plan_tasks for weekly schedule', function () {
+        Plan::create([
+            'user_id' => 1,
+            'name' => 'Monday Plan',
+            'schedule' => ['type' => 'weekly', 'days' => [0]],
+            'start_date' => '2026-03-01',
+            'end_date' => null,
+            'is_active' => true,
+        ]);
+
+        // 2026-03-09 is Monday, 2026-03-15 is Sunday
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        $planTasks = $response->json('data.plan_tasks');
+        expect($planTasks)->toContain('2026-03-09')
+            ->not->toContain('2026-03-10')
+            ->not->toContain('2026-03-11');
+    });
+
+    it('does not include other users data', function () {
+        Task::create(['user_id' => 2, 'name' => 'Other', 'status' => TaskStatus::Draft, 'date' => '2026-03-09']);
+        Plan::create([
+            'user_id' => 2,
+            'name' => 'Other Plan',
+            'schedule' => ['type' => 'daily'],
+            'start_date' => '2026-03-01',
+            'end_date' => null,
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        expect($response->json('data.tasks'))->toBeArray()->toBeEmpty();
+        expect($response->json('data.plan_tasks'))->toBeArray()->toBeEmpty();
+    });
+
+    it('includes task on exact boundary dates', function () {
+        Task::create(['user_id' => 1, 'name' => 'On From', 'status' => TaskStatus::Draft, 'date' => '2026-03-09']);
+        Task::create(['user_id' => 1, 'name' => 'On To', 'status' => TaskStatus::Draft, 'date' => '2026-03-15']);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        $tasks = $response->json('data.tasks');
+        expect($tasks)->toContain('2026-03-09')->toContain('2026-03-15');
+    });
+
+    it('includes plan whose start_date falls inside range', function () {
+        Plan::create([
+            'user_id' => 1,
+            'name' => 'Starts Mid-Range',
+            'schedule' => ['type' => 'daily'],
+            'start_date' => '2026-03-12',
+            'end_date' => null,
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        $planTasks = $response->json('data.plan_tasks');
+        expect($planTasks)->toContain('2026-03-12')->toContain('2026-03-15')
+            ->not->toContain('2026-03-11');
+    });
+
+    it('includes plan whose end_date falls inside range', function () {
+        Plan::create([
+            'user_id' => 1,
+            'name' => 'Ends Mid-Range',
+            'schedule' => ['type' => 'daily'],
+            'start_date' => '2026-03-01',
+            'end_date' => '2026-03-11',
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/marquer/calendar/overview?from=2026-03-09&to=2026-03-15');
+
+        $response->assertOk();
+        $planTasks = $response->json('data.plan_tasks');
+        expect($planTasks)->toContain('2026-03-09')->toContain('2026-03-11')
+            ->not->toContain('2026-03-12');
+    });
+
+    it('requires from and to params', function () {
+        $this->getJson('/api/marquer/calendar/overview')->assertUnprocessable();
+    });
+});
