@@ -3,8 +3,8 @@
 namespace App\Services\Tasks;
 
 use App\Models\Tasks\TaskFolder;
+use App\Services\AnalyticsPublisherService;
 use App\Services\Concerns\PublishesAnalytics;
-use App\Services\RabbitPublisherService;
 use Illuminate\Support\Collection;
 
 readonly class TaskFolderService
@@ -12,7 +12,7 @@ readonly class TaskFolderService
     use PublishesAnalytics;
 
     public function __construct(
-        private RabbitPublisherService $publisher
+        private AnalyticsPublisherService $publisher
     )
     {
     }
@@ -33,14 +33,14 @@ readonly class TaskFolderService
 
     public function create(int $userId, array $data): TaskFolder
     {
-        return $this->withAnalytics('task.folder_created', 'task_folder_created', 'task_folder_id', function () use ($userId, $data) {
+        return $this->withAnalytics('task_folder_created', 'task_folder_id', function () use ($userId, $data) {
             return TaskFolder::create([...$data, 'user_id' => $userId]);
         });
     }
 
     public function update(TaskFolder $taskFolder, array $data): TaskFolder
     {
-        return $this->withAnalytics('task.folder_updated', 'task_folder_updated', 'task_folder_id', function () use ($taskFolder, $data) {
+        return $this->withAnalytics('task_folder_updated', 'task_folder_id', function () use ($taskFolder, $data) {
             $taskFolder->update($data);
             return $taskFolder;
         });
@@ -48,6 +48,6 @@ readonly class TaskFolderService
 
     public function delete(TaskFolder $taskFolder): void
     {
-        $this->deleteWithAnalytics($taskFolder, 'task.folder_deleted', 'task_folder_deleted', 'task_folder_id');
+        $this->deleteWithAnalytics($taskFolder, 'task_folder_deleted', 'task_folder_id');
     }
 }

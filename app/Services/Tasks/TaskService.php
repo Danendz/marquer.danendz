@@ -3,8 +3,8 @@
 namespace App\Services\Tasks;
 
 use App\Models\Tasks\Task;
+use App\Services\AnalyticsPublisherService;
 use App\Services\Concerns\PublishesAnalytics;
-use App\Services\RabbitPublisherService;
 use Illuminate\Support\Collection;
 
 readonly class TaskService
@@ -12,7 +12,7 @@ readonly class TaskService
     use PublishesAnalytics;
 
     public function __construct(
-        private RabbitPublisherService $publisher
+        private AnalyticsPublisherService $publisher
     )
     {
     }
@@ -49,14 +49,14 @@ readonly class TaskService
 
     public function create(int $userId, array $data): Task
     {
-        return $this->withAnalytics('task.created', 'task_created', 'task_id', function () use ($userId, $data) {
+        return $this->withAnalytics('task_created', 'task_id', function () use ($userId, $data) {
             return Task::create([...$data, 'user_id' => $userId]);
         });
     }
 
     public function update(Task $task, array $data): Task
     {
-        return $this->withAnalytics('task.updated', 'task_updated', 'task_id', function () use ($task, $data) {
+        return $this->withAnalytics('task_updated', 'task_id', function () use ($task, $data) {
             $task->update($data);
             return $task;
         });
@@ -64,6 +64,6 @@ readonly class TaskService
 
     public function delete(Task $task): void
     {
-        $this->deleteWithAnalytics($task, 'task.deleted', 'task_deleted', 'task_id');
+        $this->deleteWithAnalytics($task, 'task_deleted', 'task_id');
     }
 }

@@ -1,7 +1,7 @@
 # CLAUDE.md — marquer-backend
 
 Laravel 12 REST API. Notes, tasks, study sessions, wishes, app releases.
-Auth via shared JWT with Auth service. RabbitMQ for analytics. S3/MinIO for APK uploads.
+Auth via shared JWT with Auth service. HTTP POST for analytics. S3/MinIO for APK uploads.
 Deployed on Railway.com at `api.danendz.com/api/marquer/`.
 
 ## Commands
@@ -76,10 +76,10 @@ Always use explicit `$fillable`, never `$guarded = []`.
 
 Dev environments include full exception details in the response.
 
-## RabbitMQ
+## Analytics
 
-`RabbitPublisherService` — publish analytics events from service methods, never from controllers.
-`RABBITMQ_ENABLED=false` skips publishing silently (default in dev).
+`AnalyticsPublisherService` — publish analytics events via HTTP POST from service methods, never from controllers.
+`ANALYTICS_ENABLED=false` skips publishing silently (default in dev).
 
 ## PR Title Convention
 

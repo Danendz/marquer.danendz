@@ -3,8 +3,8 @@
 namespace App\Services\Study;
 
 use App\Models\Study\StudySubject;
+use App\Services\AnalyticsPublisherService;
 use App\Services\Concerns\PublishesAnalytics;
-use App\Services\RabbitPublisherService;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -13,7 +13,7 @@ readonly class StudySubjectService
     use PublishesAnalytics;
 
     public function __construct(
-        private RabbitPublisherService $publisher
+        private AnalyticsPublisherService $publisher
     ) {
     }
 
@@ -26,7 +26,7 @@ readonly class StudySubjectService
 
     public function create(int $userId, array $data): StudySubject
     {
-        return $this->withAnalytics('study.subject_created', 'study_subject_created', 'study_subject_id', function () use ($userId, $data) {
+        return $this->withAnalytics('study_subject_created', 'study_subject_id', function () use ($userId, $data) {
             return StudySubject::create([...$data, 'user_id' => $userId]);
         });
     }
@@ -37,7 +37,7 @@ readonly class StudySubjectService
             throw new HttpException(403, 'Cannot modify system subjects.');
         }
 
-        return $this->withAnalytics('study.subject_updated', 'study_subject_updated', 'study_subject_id', function () use ($subject, $data) {
+        return $this->withAnalytics('study_subject_updated', 'study_subject_id', function () use ($subject, $data) {
             $subject->update($data);
             return $subject;
         });
@@ -49,6 +49,6 @@ readonly class StudySubjectService
             throw new HttpException(403, 'Cannot delete system subjects.');
         }
 
-        $this->deleteWithAnalytics($subject, 'study.subject_deleted', 'study_subject_deleted', 'study_subject_id');
+        $this->deleteWithAnalytics($subject, 'study_subject_deleted', 'study_subject_id');
     }
 }

@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Internal;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppRelease;
-use App\Services\RabbitPublisherService;
+use App\Services\AnalyticsPublisherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AppReleaseIngestController extends Controller
 {
-    public function __construct(private readonly RabbitPublisherService $publisher)
+    public function __construct(private readonly AnalyticsPublisherService $publisher)
     {
     }
 
@@ -57,15 +57,12 @@ class AppReleaseIngestController extends Controller
             );
 
             DB::afterCommit(function () use ($release) {
-                $this->publisher->publishAnalyticsSafely('app.released', [
-                    'event_name' => 'app_released',
-                    'properties' => [
-                        'release_id' => $release->id,
-                        'platform' => $release->platform,
-                        'channel' => $release->channel,
-                        'version' => $release->version,
-                        'released_at' => $release->released_at,
-                    ]
+                $this->publisher->publish('app_released', [
+                    'release_id' => $release->id,
+                    'platform' => $release->platform,
+                    'channel' => $release->channel,
+                    'version' => $release->version,
+                    'released_at' => $release->released_at,
                 ]);
             });
 

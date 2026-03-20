@@ -8,7 +8,7 @@ readonly class AppReleaseService
 {
     private array $contentTypes;
 
-    public function __construct(private RabbitPublisherService $publisher, private S3ClientService $s3ClientService)
+    public function __construct(private AnalyticsPublisherService $publisher, private S3ClientService $s3ClientService)
     {
         $this->contentTypes = [
             'android' => 'application/vnd.android.package-archive',
@@ -30,14 +30,11 @@ readonly class AppReleaseService
     {
         $release = $this->getAppRelease($platform, $channel);
 
-        $this->publisher->publishAnalyticsSafely('app.fetched', [
-            'event_name' => 'app_fetched',
-            'properties' => [
-                'release_id' => $release->id,
-                'platform' => $release->platform,
-                'channel' => $release->channel,
-                'version' => $release->version,
-            ]
+        $this->publisher->publish('app_fetched', [
+            'release_id' => $release->id,
+            'platform' => $release->platform,
+            'channel' => $release->channel,
+            'version' => $release->version,
         ]);
 
         return $release;
@@ -58,14 +55,11 @@ readonly class AppReleaseService
         $presignedRequest = $s3->createPresignedRequest($cmd, '+15 minutes');
         $url = (string)$presignedRequest->getUri();
 
-        $this->publisher->publishAnalyticsSafely('app.downloaded', [
-            'event_name' => 'app_downloaded',
-            'properties' => [
-                'release_id' => $release->id,
-                'platform' => $release->platform,
-                'channel' => $release->channel,
-                'version' => $release->version,
-            ]
+        $this->publisher->publish('app_downloaded', [
+            'release_id' => $release->id,
+            'platform' => $release->platform,
+            'channel' => $release->channel,
+            'version' => $release->version,
         ]);
 
         return $url;
