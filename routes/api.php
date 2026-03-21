@@ -6,6 +6,7 @@ use App\Http\Controllers\Private\Profile\ProfileUploadController;
 use App\Http\Controllers\Private\Profile\AchievementController;
 use App\Http\Controllers\Private\Profile\FriendshipController;
 use App\Http\Controllers\Private\Profile\MailController;
+use App\Http\Controllers\Private\Profile\NotificationController;
 use App\Http\Controllers\Private\Profile\LaboratoryController;
 use App\Http\Controllers\Private\Profile\SettingsController;
 use App\Http\Controllers\Private\Calendar\CalendarOverviewController;
@@ -102,6 +103,12 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [MailController::class, 'received']);
             Route::get('/sent', [MailController::class, 'sent']);
             Route::post('/', [MailController::class, 'send']);
+        });
+
+        // Notifications
+        Route::prefix('notifications')->group(function () {
+            Route::post('/token', [NotificationController::class, 'registerToken']);
+            Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
         });
 
         // Achievements
