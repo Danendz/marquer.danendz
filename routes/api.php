@@ -1,6 +1,14 @@
 <?php
 
 use App\Http\Controllers\Internal\AppReleaseIngestController;
+use App\Http\Controllers\Private\Profile\ProfileController;
+use App\Http\Controllers\Private\Profile\ProfileUploadController;
+use App\Http\Controllers\Private\Profile\AchievementController;
+use App\Http\Controllers\Private\Profile\FriendshipController;
+use App\Http\Controllers\Private\Profile\MailController;
+use App\Http\Controllers\Private\Profile\NotificationController;
+use App\Http\Controllers\Private\Profile\LaboratoryController;
+use App\Http\Controllers\Private\Profile\SettingsController;
 use App\Http\Controllers\Private\Calendar\CalendarOverviewController;
 use App\Http\Controllers\Private\Calendar\CalendarWeekController;
 use App\Http\Controllers\Private\Calendar\CountdownController;
@@ -62,6 +70,54 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/plans/for-date', [PlanController::class, 'forDate']);
             Route::apiResource('plans', PlanController::class);
             Route::post('/plan-tasks/{planTask}/toggle', [PlanController::class, 'toggleCompletion'])->whereNumber('planTask');
+        });
+
+        // Profile
+        Route::prefix('profile')->group(function () {
+            Route::get('/', [ProfileController::class, 'show']);
+            Route::put('/', [ProfileController::class, 'update']);
+            Route::post('/avatar/upload-url', [ProfileUploadController::class, 'avatarUploadUrl']);
+            Route::post('/cover/upload-url', [ProfileUploadController::class, 'coverUploadUrl']);
+        });
+
+        // Settings
+        Route::prefix('settings')->group(function () {
+            Route::get('/', [SettingsController::class, 'show']);
+            Route::put('/', [SettingsController::class, 'upsert']);
+        });
+
+        // Friends
+        Route::prefix('friends')->group(function () {
+            Route::get('/', [FriendshipController::class, 'index']);
+            Route::get('/requests', [FriendshipController::class, 'pendingRequests']);
+            Route::get('/search', [FriendshipController::class, 'search']);
+            Route::post('/request', [FriendshipController::class, 'sendRequest']);
+            Route::post('/invite', [FriendshipController::class, 'generateInvite']);
+            Route::post('/redeem', [FriendshipController::class, 'redeemInvite']);
+            Route::put('/request/{id}', [FriendshipController::class, 'respondToRequest'])->whereNumber('id');
+            Route::delete('/{friendUserId}', [FriendshipController::class, 'removeFriend'])->whereNumber('friendUserId');
+        });
+
+        // Mail / Collections
+        Route::prefix('mail')->group(function () {
+            Route::get('/', [MailController::class, 'received']);
+            Route::get('/sent', [MailController::class, 'sent']);
+            Route::post('/', [MailController::class, 'send']);
+        });
+
+        // Notifications
+        Route::prefix('notifications')->group(function () {
+            Route::post('/token', [NotificationController::class, 'registerToken']);
+            Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+        });
+
+        // Achievements
+        Route::get('/achievements', [AchievementController::class, 'index']);
+
+        // Laboratory
+        Route::prefix('laboratory')->group(function () {
+            Route::get('/', [LaboratoryController::class, 'index']);
+            Route::put('/', [LaboratoryController::class, 'toggle']);
         });
 
         // Study
