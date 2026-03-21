@@ -57,4 +57,27 @@ class FriendshipController extends Controller
         $this->service->removeFriend($request->user()->id, $friendUserId);
         return ApiResponse::success(null, 'Friend removed');
     }
+
+    public function search(Request $request): JsonResponse
+    {
+        $request->validate(['username' => 'required|string|min:1']);
+        $results = $this->service->search($request->user()->id, $request->input('username'));
+        return ApiResponse::success($results);
+    }
+
+    public function generateInvite(Request $request): JsonResponse
+    {
+        $code = $this->service->generateInviteCode($request->user()->id);
+        return ApiResponse::success(['invite_code' => $code]);
+    }
+
+    public function redeemInvite(Request $request): JsonResponse
+    {
+        $request->validate(['invite_code' => 'required|string']);
+        $friendship = $this->service->redeemInviteCode(
+            $request->user()->id,
+            $request->input('invite_code'),
+        );
+        return ApiResponse::success(['id' => $friendship->id, 'status' => $friendship->status]);
+    }
 }

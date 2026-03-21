@@ -15,5 +15,6 @@ class UserProfile extends Model
         'avatar_url',
         'cover_url',
         'cover_type',
+        'invite_code',
     ];
 }

@@ -5,6 +5,7 @@ namespace App\Services\Profile;
 use App\Models\Profile\Friendship;
 use App\Models\Profile\UserProfile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 readonly class FriendshipService
@@ -110,5 +111,52 @@ readonly class FriendshipService
             ->firstOrFail();
 
         $friendship->delete();
+    }
+
+    public function search(int $userId, string $username): array
+    {
+        // Get existing friend IDs to exclude
+        $friendIds = Friendship::where(function ($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('friend_id', $userId);
+        })
+            ->get()
+            ->flatMap(fn (Friendship $f) => [$f->user_id, $f->friend_id])
+            ->push($userId) // exclude self
+            ->unique()
+            ->toArray();
+
+        return UserProfile::whereNotIn('user_id', $friendIds)
+            ->whereNotNull('username')
+            ->whereRaw('LOWER(username) LIKE ?', ['%' . strtolower($username) . '%'])
+            ->limit(20)
+            ->get()
+            ->map(fn (UserProfile $p) => [
+                'user_id' => $p->user_id,
+                'username' => $p->username,
+                'avatar_url' => $p->avatar_url,
+                'status' => $p->status,
+            ])
+            ->toArray();
+    }
+
+    public function generateInviteCode(int $userId): string
+    {
+        $profile = UserProfile::firstOrCreate(['user_id' => $userId]);
+
+        if ($profile->invite_code) {
+            return $profile->invite_code;
+        }
+
+        $code = strtoupper(Str::random(8));
+        $profile->update(['invite_code' => $code]);
+
+        return $code;
+    }
+
+    public function redeemInviteCode(int $userId, string $code): Friendship
+    {
+        $inviter = UserProfile::where('invite_code', $code)->firstOrFail();
+
+        return $this->sendRequest($inviter->user_id, $userId);
     }
 }

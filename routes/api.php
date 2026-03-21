@@ -88,7 +88,10 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('friends')->group(function () {
             Route::get('/', [FriendshipController::class, 'index']);
             Route::get('/requests', [FriendshipController::class, 'pendingRequests']);
+            Route::get('/search', [FriendshipController::class, 'search']);
             Route::post('/request', [FriendshipController::class, 'sendRequest']);
+            Route::post('/invite', [FriendshipController::class, 'generateInvite']);
+            Route::post('/redeem', [FriendshipController::class, 'redeemInvite']);
             Route::put('/request/{id}', [FriendshipController::class, 'respondToRequest'])->whereNumber('id');
             Route::delete('/{friendUserId}', [FriendshipController::class, 'removeFriend'])->whereNumber('friendUserId');
         });
