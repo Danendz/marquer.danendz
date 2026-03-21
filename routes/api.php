@@ -4,6 +4,7 @@ use App\Http\Controllers\Internal\AppReleaseIngestController;
 use App\Http\Controllers\Private\Profile\ProfileController;
 use App\Http\Controllers\Private\Profile\ProfileUploadController;
 use App\Http\Controllers\Private\Profile\AchievementController;
+use App\Http\Controllers\Private\Profile\FriendshipController;
 use App\Http\Controllers\Private\Profile\LaboratoryController;
 use App\Http\Controllers\Private\Profile\SettingsController;
 use App\Http\Controllers\Private\Calendar\CalendarOverviewController;
@@ -81,6 +82,15 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('settings')->group(function () {
             Route::get('/', [SettingsController::class, 'show']);
             Route::put('/', [SettingsController::class, 'upsert']);
+        });
+
+        // Friends
+        Route::prefix('friends')->group(function () {
+            Route::get('/', [FriendshipController::class, 'index']);
+            Route::get('/requests', [FriendshipController::class, 'pendingRequests']);
+            Route::post('/request', [FriendshipController::class, 'sendRequest']);
+            Route::put('/request/{id}', [FriendshipController::class, 'respondToRequest'])->whereNumber('id');
+            Route::delete('/{friendUserId}', [FriendshipController::class, 'removeFriend'])->whereNumber('friendUserId');
         });
 
         // Achievements
