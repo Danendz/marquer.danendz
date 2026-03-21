@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Internal\AppReleaseIngestController;
 use App\Http\Controllers\Private\Profile\ProfileController;
+use App\Http\Controllers\Private\Profile\ProfileUploadController;
 use App\Http\Controllers\Private\Calendar\CalendarOverviewController;
 use App\Http\Controllers\Private\Calendar\CalendarWeekController;
 use App\Http\Controllers\Private\Calendar\CountdownController;
@@ -69,6 +70,8 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('profile')->group(function () {
             Route::get('/', [ProfileController::class, 'show']);
             Route::put('/', [ProfileController::class, 'update']);
+            Route::post('/avatar/upload-url', [ProfileUploadController::class, 'avatarUploadUrl']);
+            Route::post('/cover/upload-url', [ProfileUploadController::class, 'coverUploadUrl']);
         });
 
         // Study
