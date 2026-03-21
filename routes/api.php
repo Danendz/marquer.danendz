@@ -3,6 +3,7 @@
 use App\Http\Controllers\Internal\AppReleaseIngestController;
 use App\Http\Controllers\Private\Profile\ProfileController;
 use App\Http\Controllers\Private\Profile\ProfileUploadController;
+use App\Http\Controllers\Private\Profile\AchievementController;
 use App\Http\Controllers\Private\Profile\LaboratoryController;
 use App\Http\Controllers\Private\Profile\SettingsController;
 use App\Http\Controllers\Private\Calendar\CalendarOverviewController;
@@ -81,6 +82,9 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [SettingsController::class, 'show']);
             Route::put('/', [SettingsController::class, 'upsert']);
         });
+
+        // Achievements
+        Route::get('/achievements', [AchievementController::class, 'index']);
 
         // Laboratory
         Route::prefix('laboratory')->group(function () {
