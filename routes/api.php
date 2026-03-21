@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Internal\AppReleaseIngestController;
+use App\Http\Controllers\Private\Profile\ProfileController;
 use App\Http\Controllers\Private\Calendar\CalendarOverviewController;
 use App\Http\Controllers\Private\Calendar\CalendarWeekController;
 use App\Http\Controllers\Private\Calendar\CountdownController;
@@ -62,6 +63,12 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/plans/for-date', [PlanController::class, 'forDate']);
             Route::apiResource('plans', PlanController::class);
             Route::post('/plan-tasks/{planTask}/toggle', [PlanController::class, 'toggleCompletion'])->whereNumber('planTask');
+        });
+
+        // Profile
+        Route::prefix('profile')->group(function () {
+            Route::get('/', [ProfileController::class, 'show']);
+            Route::put('/', [ProfileController::class, 'update']);
         });
 
         // Study
